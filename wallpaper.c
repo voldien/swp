@@ -46,10 +46,10 @@
 /*	Default vertex shader.	*/
 const char* vertex = ""
 #ifdef GLES2
-"#version 330\n"
+"#version 120\n"
 "attribute vec3 vertex;\n"
 #else
-"#version 120\n"
+"#version 330\n"
 "layout(location = 0) in vec3 vertex;\n"
 #endif
 "smooth out vec2 uv;\n"
@@ -61,9 +61,9 @@ const char* vertex = ""
 /*	Default fragment shader.	*/
 const char* fragment = ""
 #ifdef GLES2
-"#version 330\n"
-#else
 "#version 120\n"
+#else
+"#version 330\n"
 "layout(location = 0) out vec4 fragColor;\n"
 #endif
 "uniform sampler2D tex0;\n"

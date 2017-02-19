@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #include <fcntl.h>
 #include <FreeImage.h>
 #include <getopt.h>
@@ -59,7 +58,7 @@ int main(int argc, char** argv){
 	/*	*/
 	SDL_Event event = {0};			/*	*/
 	SDL_Thread* thread = NULL;		/*	*/
-	swpRenderingState state = {0};		/*	*/
+	swpRenderingState state = {0};	/*	*/
 	SDL_Window* window = NULL;		/*	*/
 	SDL_GLContext* context = NULL;	/*	*/
 	int glatt;						/*	Tmp value.	*/
@@ -68,7 +67,6 @@ int main(int argc, char** argv){
 	/*	opengl display buffer.	*/
 	GLuint vao;	/*	*/
 	GLuint vbo;	/*	*/
-
 
 	/*	*/
 	int c;
@@ -200,6 +198,7 @@ int main(int argc, char** argv){
 
 	/*	Initialize SDL.	*/
 	result = SDL_Init(SDL_INIT_VIDEO |  SDL_INIT_EVENTS);
+	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 	if(result != 0){
 		fprintf(stderr, "Failed to initialize SDL, %s.\n", SDL_GetError());
 		status = EXIT_FAILURE;
@@ -364,7 +363,7 @@ int main(int argc, char** argv){
 				if(event.key.keysym.sym == SDLK_RETURN && ( event.key.keysym.mod & SDLK_LCTRL ) ){
 					swpVerbosePrintf("Set to fullscreen mode.");
 					g_fullscreen = ~g_fullscreen & 0x1;
-					swpSetFullscreen(window, g_fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+					swpSetFullscreen(window, g_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 				}
 				break;
 			case SDL_WINDOWEVENT:
