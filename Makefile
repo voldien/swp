@@ -3,11 +3,13 @@
 RM := rm -f
 CP := cp
 MKDIR := mkdir -p
+#
 DESTDIR ?=
 PREFIX ?= /usr
 INSTALL_LOCATION=$(DESTDIR)$(PREFIX)
+#
 CC ?= gcc
-CFLAGS := -O2 -DGLES2=1
+CFLAGS := -O2 #-DGLES2=1
 CLIBS := -lSDL2 -lfreeimage -lGL
 
 #
@@ -16,15 +18,8 @@ OBJS = $(notdir $(subst .c,.o,$(SRC)))
 TARGET ?= swp
 VERSION := 0.9.0
 
-
-vpath %.c .
-vpath %.o .
-VPATH := .
-
-
-
 all : $(TARGET)
-	@echo "Making $(TARGET) \n"
+	@echo -n "Finished creating $(TARGET). \n"
 
 $(TARGET) : $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(CLIBS)
@@ -33,8 +28,8 @@ $(TARGET) : $(OBJS)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 
-install : all
-	@echo "Installing wallpaper.\n"
+install : $(TARGET)
+	@echo -n "Installing wallpaper.\n"
 	$(MKDIR) $(INSTALL_LOCATION)/bin
 	$(CP) $(TARGET) $(INSTALL_LOCATION)/bin
 
@@ -48,3 +43,6 @@ distribution :
 
 clean :
 	$(RM) *.o
+
+
+.PHONY: all install distribution clean
