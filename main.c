@@ -153,7 +153,7 @@ int main(int argc, char** argv){
 				state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
 				assert(state.data.shaders);
 				if( swpLoadFile(optarg, &fragdata) > 0){
-					state.data.shaders[index].prog = swpCreateShader(vertex, fragdata);
+					state.data.shaders[index].prog = swpCreateShader(gc_vertex, fragdata);
 					state.data.shaders[index].elapse = 0.120f;
 				}
 
@@ -320,7 +320,7 @@ int main(int argc, char** argv){
 
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];
-	state.data.displayshader->prog = swpCreateShader(vertex, fragment);
+	state.data.displayshader->prog = swpCreateShader(gc_vertex, gc_fragment);
 	state.data.displayshader->elapse = 0;
 	state.data.displayshader->texloc0 = glGetUniformLocation(state.data.displayshader->prog, "tex0");
 	glUseProgram(state.data.displayshader->prog);

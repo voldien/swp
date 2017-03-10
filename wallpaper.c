@@ -44,7 +44,7 @@
 
 
 /*	Default vertex shader.	*/
-const char* vertex = ""
+const char* gc_vertex = ""
 #ifdef GLES2
 "#version 120\n"
 "attribute vec3 vertex;\n"
@@ -59,7 +59,7 @@ const char* vertex = ""
 "}\n";
 
 /*	Default fragment shader.	*/
-const char* fragment = ""
+const char* gc_fragment = ""
 #ifdef GLES2
 "#version 120\n"
 #else
@@ -79,7 +79,7 @@ const char* fragment = ""
 
 
 /*	Display quad.	*/
-const float quad[4][3] = {
+const float gc_quad[4][3] = {
 		{-1.0f, -1.0f, 0.0f},
 		{-1.0f,  1.0f, 0.0f},
 		{ 1.0f, -1.0f, 0.0f},
@@ -321,7 +321,7 @@ void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 
 	glGenBuffers(1, vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(gc_quad), gc_quad, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, NULL);

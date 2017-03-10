@@ -25,9 +25,9 @@
 
 
 /*	Read only.	*/
-extern const char* vertex;				/*	Default vertex glsl shader.	*/
-extern const char* fragment;			/*	Default fragment glsl shader.	*/
-extern const float quad[4][3];			/*	Display quad vertices.	*/
+extern const char* gc_vertex;			/*	Default vertex glsl shader.	*/
+extern const char* gc_fragment;			/*	Default fragment glsl shader.	*/
+extern const float gc_quad[4][3];		/*	Display quad vertices.	*/
 
 
 /*	global.	*/
