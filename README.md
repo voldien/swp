@@ -8,7 +8,7 @@ simplewallpaper is a simple wallpaper application that uses FIFO (file in file o
 the application and loaded into memory to create image to display.
 ```
 #!bash
-swp -p ~/wallfifo0 -v
+swp -p ~/wallfifo0 -V
 cat image.png > ~/wallfifo0 
 ```
 
