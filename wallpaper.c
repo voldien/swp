@@ -297,7 +297,7 @@ long int swpLoadFile(const char* cfilename, void** data){
 	}
 
 
-	/**/
+	/*	Determine size of file.	*/
 	fseek(f, 0, SEEK_END);
 	pos = ftell(f);
 	fseek(f, 0, SEEK_SET);
