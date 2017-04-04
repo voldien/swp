@@ -137,6 +137,11 @@ extern long int swpLoadFile(const char* cfilename, void** data);
 extern void swpGenerateQuad(GLuint* vao, GLuint* vbo);
 
 /**
+ *
+ */
+extern unsigned int swpGetGLSLVersion(void);
+
+/**
  *	Load shader.
  *
  *	@Return

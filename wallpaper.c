@@ -45,13 +45,11 @@
 
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
-#ifdef GLES2
-"#version 120\n"
-"attribute vec3 vertex;\n"
-#else
-"#version 330\n"
+"#if __VERSION__ >= 330\n"
 "layout(location = 0) in vec3 vertex;\n"
-#endif
+"#else\n"
+"attribute vec3 vertex;\n"
+"#endif\n"
 "smooth out vec2 uv;\n"
 "void main(void){\n"
 "gl_Position = vec4(vertex,1.0);\n"
@@ -60,20 +58,17 @@ const char* gc_vertex = ""
 
 /*	Default fragment shader.	*/
 const char* gc_fragment = ""
-#ifdef GLES2
-"#version 120\n"
-#else
-"#version 330\n"
+"#if __VERSION__ >= 330\n"
 "layout(location = 0) out vec4 fragColor;\n"
-#endif
+"#endif\n"
 "uniform sampler2D tex0;\n"
 "smooth in vec2 uv;\n"
 "void main(void){\n"
-#ifdef GLES2
-"gl_FragColor = texture(tex0, uv);\n"
-#else
+"#if __VERSION__ >= 330\n"
 "fragColor = texture(tex0, uv);\n"
-#endif
+"#else\n"
+"gl_FragColor = texture(tex0, uv);\n"
+"#endif\n"
 "}\n";
 
 
@@ -329,26 +324,55 @@ void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 	glBindVertexArray(0);
 }
 
+unsigned int swpGetGLSLVersion(void){
+
+	char glstring[128] = {0};
+	unsigned int version;
+
+	strcpy(glstring,glGetString(GL_SHADING_LANGUAGE_VERSION));
+	strstr(glstring, " ")[0] = '\0';
+	version = strtof(glstring, NULL) * 100;
+
+	return version;
+}
 
 GLuint swpCreateShader(const char* vshader, const char* fshader){
 
 	GLuint vs, fs;
 	GLuint prog;
 	GLuint vstatus, lstatus;
+	const char* vsources[2];
+	const char* fsources[2];
+	char glversion[32];
+
+	int value;
+	int version;
 
 	swpVerbosePrintf("Loading shader program.\n");
+
+	/*	Check if core.	*/
+	glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &value);
+	value = ( value == SDL_GL_CONTEXT_PROFILE_CORE );
+
+	/*	Create version string.	*/
+	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), "");	/*	TODO evalute.*/
+	vsources[0] = glversion;
+	fsources[0] = glversion;
+
 
 	prog = glCreateProgram();
 
 	if(vshader != NULL){
+		vsources[1] = vshader;
 		vs = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vs, 1, &vshader, NULL);
+		glShaderSource(vs, 2, vsources, NULL);
 		glCompileShader(vs);
 		glAttachShader(prog, vs);
 	}
 	if(fshader != NULL){
+		fsources[1] = fshader;
 		fs = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fs, 1, &fshader, NULL);
+		glShaderSource(fs, 2, fsources, NULL);
 		glCompileShader(fs);
 		glAttachShader(prog, fs);
 	}
