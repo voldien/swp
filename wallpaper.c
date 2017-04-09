@@ -326,10 +326,11 @@ void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 
 unsigned int swpGetGLSLVersion(void){
 
-	char glstring[128] = {0};
 	unsigned int version;
+	char glstring[128] = {0};
 
-	strcpy(glstring,glGetString(GL_SHADING_LANGUAGE_VERSION));
+	/*	Extract version number.	*/
+	strcpy(glstring, (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
 	strstr(glstring, " ")[0] = '\0';
 	version = strtof(glstring, NULL) * 100;
 
@@ -346,16 +347,17 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	char glversion[32];
 
 	int value;
-	int version;
+	const char* strcore;
+
 
 	swpVerbosePrintf("Loading shader program.\n");
 
 	/*	Check if core.	*/
 	glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &value);
-	value = ( value == SDL_GL_CONTEXT_PROFILE_CORE );
+	strcore = ( value == SDL_GL_CONTEXT_PROFILE_CORE ) ? "core" : "";
 
 	/*	Create version string.	*/
-	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), "");	/*	TODO evalute.*/
+	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), strcore);	/*	TODO evalute.*/
 	vsources[0] = glversion;
 	fsources[0] = glversion;
 
