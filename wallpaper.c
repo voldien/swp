@@ -328,10 +328,14 @@ unsigned int swpGetGLSLVersion(void){
 
 	unsigned int version;
 	char glstring[128] = {0};
+	char* wspac;
 
 	/*	Extract version number.	*/
 	strcpy(glstring, (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-	strstr(glstring, " ")[0] = '\0';
+	wspac = strstr(glstring, " ");
+	if(wspac){
+		*wspac = '\0';
+	}
 	version = strtof(glstring, NULL) * 100;
 
 	return version;
