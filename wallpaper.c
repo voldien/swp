@@ -450,7 +450,7 @@ GLuint swpGetGLTextureFormat(unsigned int ffpic){
 ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	*/
-	char inbuf[1024];					/**/
+	char inbuf[4096];					/**/
 	ssize_t len = 0;					/**/
 	ssize_t totallen = 0;				/**/
 
@@ -644,7 +644,7 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 #if defined(GLES2) || defined(GLES3)
 	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY);
 #else
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, NULL, GL_DYNAMIC_COPY);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, NULL, GL_STREAM_COPY);
 	err = glGetError();
 	if( err != GL_NO_ERROR){
 		fprintf(stderr, "Error on glBufferData %d.\n", err);
@@ -669,8 +669,8 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	if(glIsTexture(*tex) == GL_FALSE){
 		glGenTextures(1, tex);
 		glBindTexture(GL_TEXTURE_2D, *tex);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -763,16 +763,22 @@ void* swpCatchPipedTexture(void* phandle){
 			if(FD_ISSET(fd, &read_fd_set) ){
 				swpVerbosePrintf("Select event %d.\n", fd);
 
-				if (flock(fd, LOCK_EX) < 0) {
+				if (flock(fd, LOCK_EX) != 0) {
 					fprintf(stderr, "Failed to lock file, %s.\n", strerror(errno));
 				}
 
-				/*	Load data from stream. */
+				/*	Load data from stream.	*/
 				status = swpReadPicFromfd(fd, &desc[curdesc]);
-				flock (fd, LOCK_UN);
-				close(fd);
 
+				/*	Unlock the */
+				if (flock(fd, LOCK_UN) != 0) {
+					fprintf(stderr, "Failed to unlock file, %s.\n", strerror(errno));
+				}
 
+				/*	Close file.	*/
+				if( close(fd) != 0){
+					fprintf(stderr, "Failed to close file, %s.\n", strerror(errno));
+				}
 
 
 				/*	Send event to the main thread that will process the data.	*/
