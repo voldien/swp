@@ -47,9 +47,9 @@ extern int g_maxtexsize;				/*	OpenGL max texture size, (Check texture proxy lat
 #define SWP_NUM_TEXTURES 3
 
 typedef struct swp_transition_shader_t{
-	GLuint prog;				/*	*/
+	GLuint prog;				/*	Shader program.	*/
 	float elapse;				/*	*/
-	GLint texloc0;				/*	*/
+	GLint texloc0;				/*	Transition from texture.	*/
 	GLint texloc1;				/*	*/
 }swpTransitionShader;
 
@@ -103,13 +103,13 @@ typedef struct swp_texture_desc_t{
 /**
  *	Verbose stdout print.
  *
- *	@Return
+ *	@Return Number
  */
 extern int swpVerbosePrintf(const char* format,...);
 
 /**
  *	Get version of the application.
- *	@Return version non null string.
+ *	@Return version none null string.
  */
 extern const char* swpGetVersion(void);
 
@@ -132,17 +132,17 @@ extern long int swpLoadFile(const char* cfilename, void** data);
 
 
 /**
- *
+ *	Generate Quad with two triangle in GL_ARRAY_BUFFER mode.
  */
 extern void swpGenerateQuad(GLuint* vao, GLuint* vbo);
 
 /**
- *
+ *	Get GLSL version in decimal.
  */
 extern unsigned int swpGetGLSLVersion(void);
 
 /**
- *	Load shader.
+ *	create Shader.
  *
  *	@Return
  */
@@ -170,21 +170,24 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc);
  *
  *	@Return
  */
-extern int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc);
+extern int swpLoadTextureFromMem(GLuint* __restrict__ tex, GLuint pbo,
+		const swpTextureDesc* __restrict__ desc);
 
 /**
- *
+ *	Set window as wallpaper.
  */
 extern void swpSetWallpaper(SDL_Window* window);
 
 /**
- *
+ *	Set window fullscreen. The screen size will not be altered.
  */
 extern void swpSetFullscreen(SDL_Window* window, Uint32 fullscreen);
 
 
 /**
- *	@Return
+ * 	FIFO thread function for waiting for incoming data.
+ *
+ *	@Return NULL when terminating the function.
  */
 extern void* swpCatchPipedTexture(void* phandle);
 
@@ -194,9 +197,9 @@ extern void* swpCatchPipedTexture(void* phandle);
 extern void swpCatchSignal(int sig);
 
 /**
- *
+ *	Render display.
  */
-void swpRender(GLuint vao, SDL_Window* window, swpRenderingState* state);
+void swpRender(GLuint vao, SDL_Window* __restrict__ window, swpRenderingState* __restrict__ state);
 
 
 

@@ -107,11 +107,6 @@ typedef void (APIENTRY *DEBUGPROC)(GLenum source,
 typedef void(*glDebugMessageCallback)(DEBUGPROC,void*);
 
 
-/**
- *	Verbose stdout print.
- *
- *	@Return
- */
 int swpVerbosePrintf(const char* format,...){
 
 	int status = -1;
@@ -130,6 +125,7 @@ const char* swpGetVersion(void){
 }
 
 void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam){
+
 	char* stringStream;
     char* sourceString;
     char* typeString;
@@ -254,10 +250,9 @@ void swpEnableDebug(void){
         __glDebugMessageCallbackAMD(callback_debug_gl, NULL);
     }
 
-
+    /*	*/
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
 }
 
 
@@ -306,7 +301,6 @@ long int swpLoadFile(const char* cfilename, void** data){
 
 	return nBytes;
 }
-
 
 void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 
@@ -451,8 +445,8 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	*/
 	char inbuf[4096];					/**/
-	ssize_t len = 0;					/**/
-	ssize_t totallen = 0;				/**/
+	register ssize_t len = 0;			/**/
+	register ssize_t totallen = 0;		/**/
 
 
 	/*	Free image.	*/
@@ -641,7 +635,7 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 
 
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-#if defined(GLES2) || defined(GLES3)
+#if !defined(GLES2) || defined(GLES3)
 	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY);
 #else
 	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, NULL, GL_STREAM_COPY);
@@ -738,6 +732,8 @@ void* swpCatchPipedTexture(void* phandle){
 
 	swpVerbosePrintf("Started %s thread.\n", SDL_GetThreadName(NULL) );
 
+	/*	*/
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 
 	/*	Open FIFO file.	*/
 	fd = open(g_fifopath, O_RDONLY);
@@ -746,11 +742,9 @@ void* swpCatchPipedTexture(void* phandle){
 		exit(EXIT_FAILURE);
 	}
 
-
 	/*	Initialize the set of active sockets. */
 	FD_ZERO (&read_fd_set);
 	FD_SET (fd, &read_fd_set);
-
 
 	/*	*/
 	for(;;){

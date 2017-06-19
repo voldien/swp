@@ -84,7 +84,7 @@ int main(int argc, char** argv){
 			{"resolution",	required_argument, 	NULL, 'R'},	/*	Set window resolution.	*/
 			{"position",	required_argument, 	NULL, 'P'},	/*	Set window position.	*/
 			{"shader",		required_argument, 	NULL, 's'},	/*	*/
-			{"socket",		required_argument,	NULL, 'S'},	/*	*/
+			{"socket",		required_argument,	NULL, 'S'},	/*	Listen on socket.	*/
 			{"file",		required_argument,	NULL, 'f'},	/*	File to load picture from.	*/
 			{"filter",		required_argument,	NULL, 'B'},	/*	Filter.	*/
 
@@ -169,18 +169,15 @@ int main(int argc, char** argv){
 		}
 	}
 
-
 	/*	Check if stdin is piped.	*/
 	if(isatty(STDIN_FILENO) == 0){
 		pipe = 1;
 	}
 
-
 	/*	Signal.	*/
 	signal(SIGINT, swpCatchSignal);
 	signal(SIGTERM, swpCatchSignal);
 	signal(SIGSEGV, swpCatchSignal);
-
 
 	/*	Create FIFO.	*/
 	result = unlink(g_fifopath);
@@ -190,7 +187,7 @@ int main(int argc, char** argv){
 		goto error;
 	}
 	fdfifo = mkfifo(g_fifopath, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH | O_WRONLY);
-	if( fdfifo < 0){
+	if( fdfifo != 0){
 		fprintf(stderr, "Failed to create FIFO file %s\n", strerror(errno));
 		status = EXIT_FAILURE;
 		goto error;
@@ -205,12 +202,9 @@ int main(int argc, char** argv){
 		goto error;
 	}
 
-
 	/*	*/
 	FreeImage_Initialise(0);
 	swpVerbosePrintf("FreeImage version %s.\n", FreeImage_GetVersion());
-
-
 
 	/*	Set window resolution.	*/
 	if( g_winres[0] == -1 &&  g_winres[1] == -1){
@@ -228,7 +222,6 @@ int main(int argc, char** argv){
 		g_winpos[0] = mode.w / 4;
 		g_winpos[1] = mode.h / 4;
 	}
-
 
 	/*	Create window.	*/
 	window = SDL_CreateWindow("wallpaper",
@@ -251,7 +244,6 @@ int main(int argc, char** argv){
 		swpSetFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
 
-
 	/*	Create OpenGL Context.	*/
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &glatt) | (g_debug ? SDL_GL_CONTEXT_DEBUG_FLAG : 0) );
@@ -272,7 +264,6 @@ int main(int argc, char** argv){
 		goto error;
 	}
 
-
 	/*	Create thread.	*/
 	thread = SDL_CreateThread((SDL_ThreadFunction) swpCatchPipedTexture,
 			"catch_pipe", &fdfifo);
@@ -282,30 +273,31 @@ int main(int argc, char** argv){
 		goto error;
 	}
 
-
-	/*	Set OpenGL states.	*/
+	/*	Set OpenGL state.	*/
 	SDL_GL_SetSwapInterval(1);	/*	Enable vsync.	*/
 	glDepthMask(GL_FALSE);		/*	Depth mask isn't needed.	*/
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LESS);		/**/
 	glEnable(GL_DITHER);
 	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_DEPTH_TEST);	/*	Depth isn't needed.	*/
+	glDisable(GL_STENCIL_TEST);	/*	Stencil isn't needed.	*/
 	glDisable(GL_CULL_FACE);
 	glCullFace(GL_FRONT_AND_BACK);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
-
+	/*	Display OpenGL information.	*/
 	swpVerbosePrintf("GL_VENDOR %s.\n", glGetString(GL_VENDOR) );
 	swpVerbosePrintf("GL_VERSION %s.\n", glGetString(GL_VERSION) );
 	swpVerbosePrintf("GL_RENDERER %s.\n", glGetString(GL_RENDERER));
 	swpVerbosePrintf("GL_EXTENSION %s.\n", glGetString(GL_EXTENSIONS) );
 	swpVerbosePrintf("GL_SHADING_LANGUAGE_VERSION %s.\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	/*	Check opengl limitations.	*/
+	/*	Check OpenGL limitations.	*/
 	glGetIntegerv( GL_MAX_TEXTURE_SIZE , &g_maxtexsize);
 	swpVerbosePrintf("Max texture size %d.\n", g_maxtexsize);
+
+	/*	Enable opengl debug callback if in debug mode.	*/
 	if(g_debug){
 		swpEnableDebug();
 	}
@@ -313,10 +305,8 @@ int main(int argc, char** argv){
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
 
-
 	/*	Create Pixel buffer object.	*/
 	glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
-
 
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];
@@ -327,7 +317,7 @@ int main(int argc, char** argv){
 	glUniform1i(state.data.displayshader->texloc0, 0);
 
 
-	/*	Load textuer from file.	*/
+	/*	Load texture from file.	*/
 	if(fd > 0 ){
 		swpTextureDesc desc = { 0 };
 		swpReadPicFromfd(fd, &desc);
@@ -348,10 +338,10 @@ int main(int argc, char** argv){
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, state.data.texs[state.data.curtex]);
 
-
 	/*	*/
 	while(g_alive != 0){
 
+		/*	Wait intill incoming event.	*/
 		while(SDL_WaitEventTimeout(&event, timeout)){
 			switch(event.type){
 			case SDL_APP_TERMINATING:
@@ -437,14 +427,13 @@ int main(int argc, char** argv){
 		}
 	}
 
-
 	error:
-
 
 	/*	Cleanup code.	*/
 	g_alive = 0;
 	SDL_DetachThread(thread);
 
+	/*	Release OpenGL resources.	*/
 	if(context != NULL){
 		if(glIsVertexArray(vao) == GL_TRUE){
 			glDeleteVertexArrays(1, &vao);
@@ -463,16 +452,20 @@ int main(int argc, char** argv){
 			}
 		}
 
+		/*	Release Context.	*/
+		SDL_GL_MakeCurrent(window, NULL);
 		SDL_GL_DeleteContext(context);
 	}
+
 	if(window != NULL){
 		SDL_DestroyWindow(window);
 	}
 
-
+	/**/
 	FreeImage_DeInitialise();
 	SDL_Quit();
 
+	/*	*/
 	close(fdfifo);
 	close(fd);
 	if(g_verbosefd != NULL){
