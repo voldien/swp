@@ -148,6 +148,12 @@ extern unsigned int swpGetGLSLVersion(void);
  */
 extern GLuint swpCreateShader(const char* vshader, const char* fshader);
 
+/**
+ *	Load transition shaders.
+ *
+ */
+extern void swpLoadTransitionShaders(swpRenderingState* __restrict__ state,
+		unsigned int count, char** __restrict__ sources);
 
 
 /**

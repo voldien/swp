@@ -412,6 +412,33 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	return prog;
 }
 
+void swpLoadTransitionShaders(swpRenderingState* state, unsigned int count, char** sources){
+
+	int x;
+
+	swpVerbosePrintf("Loading %d transition shaders.\n", count);
+
+	/*	Iterate through each shader.	*/
+	for(x = 0; x < count; x++){
+		void* fragdata = NULL;
+		int index = state->data.numshaders;
+		swpTransitionShader* trans;
+
+		state->data.numshaders++;
+		state->data.shaders = realloc(state->data.shaders, state->data.numshaders * sizeof(swpTransitionShader));
+		assert(state->data.shaders);
+		trans = &state->data.shaders[index];
+
+		/*	*/
+		if( swpLoadFile(optarg, &fragdata) > 0){
+			trans->prog = swpCreateShader(gc_vertex, fragdata);
+			trans->elapse = 1.120f;
+			trans->normalizedurloc = glGetUniformLocation(trans->prog, "normalizedur");
+		}
+
+	}
+}
+
 
 GLuint swpGetGLTextureFormat(unsigned int ffpic){
 
