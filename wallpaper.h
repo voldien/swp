@@ -128,7 +128,14 @@ extern void swpParseResolutionArgument(const char* arg, int* res);
 /**
  *	@Return number of bytes that was loaded from file.
  */
-extern long int swpLoadFile(const char* cfilename, void** data);
+extern long int swpLoadFile(const char* __restrict__ cfilename,
+		void** __restrict__ data);
+
+/**
+ *	@Return number of bytes that was loaded from file.
+ */
+extern long int swpLoadString(const char* __restrict__ cfilename,
+		void** __restrict__ data);
 
 
 /**

@@ -302,6 +302,20 @@ long int swpLoadFile(const char* cfilename, void** data){
 	return nBytes;
 }
 
+long int swpLoadString(const char* __restrict__ cfilename,
+		void** __restrict__ data){
+
+	long int l;
+
+	l = swpLoadFile(cfilename, data);
+	if(l > 0){
+		*data = realloc(*data, l + 1);
+		((char**)*data)[l] = '\0';
+	}
+
+	return l;
+}
+
 void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 
 	swpVerbosePrintf("Generating display quad.\n");
