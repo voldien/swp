@@ -263,17 +263,18 @@ void swpEnableDebug(void){
 
 void swpParseResolutionArgument(const char* arg, int* res){
 
-	char* lws, rws;
+	char* lws;
+	char* rws;
 	char optarg[1024];
 	memcpy(optarg, arg, strlen(arg) + 1);
 
 	/*	Parse.	*/
 	lws = strstr(optarg, "x");
 	*lws = '\0';
-	rws = lws + 1;
+	rws = (char*)(lws + 1);
 	lws = optarg;
-	res[0] = strtol(lws, NULL, 10);
-	res[1] = strtol(rws, NULL, 10);
+	res[0] = (int)strtol((const char *)lws, NULL, 10);
+	res[1] = (int)strtol((const char *)rws, NULL, 10);
 }
 
 
