@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Versions
+MAJOR := 0
+MINOR := 9
+PATCH := 0
+STATE := a
+VERSION := $(MAJOR).$(MINOR)$(STATE)$(PATCH)
+# Utilitys
 RM := rm -f
 CP := cp
 MKDIR := mkdir -p
@@ -9,20 +16,24 @@ PREFIX ?= /usr
 INSTALL_LOCATION=$(DESTDIR)$(PREFIX)
 #
 CC ?= gcc
-CFLAGS := -O2 #-DGLES2=1
+CFLAGS := -O2 -DSWP_STR_VERSION=\"$(VERSION)\" -DSWP_MAJOR=$(MAJOR) -DSWP_MINOR=$(MINOR)
 CLIBS := -lSDL2 -lfreeimage -lGL
 
 #
 SRC = $(wildcard *.c)
 OBJS = $(notdir $(subst .c,.o,$(SRC)))
 TARGET ?= swp
-VERSION := 0.9.0
+
 
 all : $(TARGET)
 	@echo -n "Finished creating $(TARGET). \n"
 
 $(TARGET) : $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(CLIBS)
+
+debug : CFLAGS += -g3 -O0
+debug : $(OBJS)
+	$(CC) $(CLFAGS) $^ -o $@ $(CLIBS)
 
 %.o : %.c
 	$(CC) $(CFLAGS) -c $^ -o $@
@@ -46,3 +57,4 @@ clean :
 
 
 .PHONY: all install distribution clean
+
