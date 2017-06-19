@@ -152,7 +152,7 @@ int main(int argc, char** argv){
 				state.data.numshaders++;
 				state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
 				assert(state.data.shaders);
-				if( swpLoadFile(optarg, &fragdata) > 0){
+				if( swpLoadString(optarg, &fragdata) > 0){
 					state.data.shaders[index].prog = swpCreateShader(gc_vertex, fragdata);
 					state.data.shaders[index].elapse = 0.120f;
 				}
