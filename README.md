@@ -19,3 +19,6 @@ In order to compile the program, the following Debian packages has to be install
 ```bash
 apt-get install libfreeimage-dev libsdl2-dev
 ```
+## License ##
+
+This project is licensed under the GPL+3 License - see the [LICENSE](LICENSE) file for details
