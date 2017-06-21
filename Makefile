@@ -28,6 +28,7 @@ TARGET ?= swp
 all : $(TARGET)
 	@echo -n "Finished creating $(TARGET). \n"
 
+$(TARGET) : CFLAGS += -O2 -DNDEBUG
 $(TARGET) : $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(CLIBS)
 
