@@ -357,6 +357,36 @@ unsigned int swpGetGLSLVersion(void){
 	return version;
 }
 
+unsigned int swpCheckExtensionSupported(const char* extension){
+
+	int i;
+	GLint k;
+	PFNGLGETSTRINGIPROC glGetStringi = NULL;
+
+	/*	*/
+	glGetStringi = (PFNGLGETSTRINGIPROC)SDL_GL_GetProcAddress("glGetStringi");
+
+	/*	*/
+	if(glGetStringi){
+
+		/*	*/
+		glGetIntegerv(GL_NUM_EXTENSIONS, &k);
+
+		/*	Iterate each extensions.	*/
+		for(i = 0; i < k; i++){
+			const GLubyte* nextension = glGetStringi(GL_EXTENSIONS, i);
+			if(nextension){
+				if(strstr(nextension, extension))
+					return 1;
+			}
+		}
+	}else
+		return strstr(glGetString(GL_EXTENSIONS), extension) != NULL;
+
+	return 0;
+}
+
+
 GLuint swpCreateShader(const char* vshader, const char* fshader){
 
 	GLuint vs, fs;

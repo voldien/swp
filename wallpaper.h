@@ -149,6 +149,11 @@ extern void swpGenerateQuad(GLuint* vao, GLuint* vbo);
 extern unsigned int swpGetGLSLVersion(void);
 
 /**
+ *
+ */
+extern unsigned int swpCheckExtensionSupported(const char* extension);
+
+/**
  *	create Shader.
  *
  *	@Return
