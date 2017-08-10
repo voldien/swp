@@ -305,8 +305,11 @@ int main(int argc, char** argv){
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
 
+	g_support_pbo = swpCheckExtensionSupported("GL_ARB_pixel_buffer_object");
+
 	/*	Create Pixel buffer object.	*/
-	glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
+	if(g_support_pbo)
+		glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
 
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];

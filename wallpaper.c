@@ -107,6 +107,7 @@ FILE* g_verbosefd = NULL;				/*	Verbose file descriptor.	*/
 int g_winres[2] = {-1,-1};				/*	Window resolution.	*/
 int g_winpos[2] = {-1,-1};				/*	Window position.	*/
 int g_maxtexsize;
+int g_support_pbo = 0;
 
 
 typedef void (APIENTRY *DEBUGPROC)(GLenum source,

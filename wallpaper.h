@@ -43,6 +43,7 @@ extern FILE* g_verbosefd;				/*	Verbose file descriptor.	*/
 extern int g_winres[2];					/*	Window resolution.	*/
 extern int g_winpos[2];					/*	Window position.	*/
 extern int g_maxtexsize;				/*	OpenGL max texture size, (Check texture proxy later)*/
+extern int g_support_pbo;				/*	Pixel buffer object for fast image transfer.	*/
 
 #define SWP_NUM_TEXTURES 3
 
