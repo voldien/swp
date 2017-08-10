@@ -668,15 +668,19 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	GLenum err = 0;							/*	*/
 	GLubyte* pbuf = NULL;					/*	*/
 
-	/**/
+	/*	*/
 	const void* pixel = desc->pixel;
-	unsigned int width = desc->width;
-	unsigned int height = desc->height;
-	unsigned int size = desc->size;
+	const unsigned int width = desc->width;
+	const unsigned int height = desc->height;
+	const unsigned int size = desc->size;
+
+	PFNGLMAPBUFFERPROC glMapBufferARB;
+	PFNGLBINDBUFFERARBPROC glBindBufferARB;
+	PFNGLBUFFERDATAARBPROC glBufferDataARB;
 
 	swpVerbosePrintf("Loading texture from pixel data.\n");
 
-	/*	*/
+	/*	Get compression.	*/
 	if(g_compression){
 		switch(intfor){
 		case GL_RGB:
@@ -690,51 +694,74 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		}
 	}
 
+	/*	TODO check if PBO is supported.	*/
+	if(g_support_pbo){
 
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-#if !defined(GLES2) || defined(GLES3)
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY);
-#else
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, NULL, GL_STREAM_COPY);
-	err = glGetError();
-	if( err != GL_NO_ERROR){
-		fprintf(stderr, "Error on glBufferData %d.\n", err);
-		return 0;
-	}
-	pbuf = (GLbyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+		/**/
+		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
-	if(pbuf == NULL){
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
+	#if defined(GLES2) || defined(GLES3)
+		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY_ARB);
+	#else
+
+		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, size, NULL, GL_STREAM_DRAW_ARB);
 		err = glGetError();
-		fprintf(stderr, "Bad pointer %i\n", err);
-		return 0;
-	}
-	swpVerbosePrintf("Copying %d bytes to PBO (%d MB).\n", size, size / (1024 * 1024));
-	memcpy(pbuf, pixel, size);
-	status = glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-	if( status != GL_TRUE){
-		fprintf(stderr, "Error when unmapping pbo buffer, %d\n", glGetError());
-	}
+		if( err != GL_NO_ERROR){
+			fprintf(stderr, "Error on glBufferData %d.\n", err);
+			return 0;
+		}
+		pbuf = (GLubyte*)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,
+				GL_WRITE_ONLY_ARB);
+
+		if(pbuf == NULL){
+			err = glGetError();
+			fprintf(stderr, "Bad pointer %i\n", err);
+			return 0;
+		}
+		swpVerbosePrintf("Copying %d bytes to PBO (%d MB).\n", size, size / (1024 * 1024));
+		memcpy(pbuf, pixel, size);
+		status = glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
+		if( status != GL_TRUE){
+			fprintf(stderr, "Error when unmapping pbo buffer, %d\n", glGetError());
+		}
 #endif
+	}
+
 
 	/*	Create texture.	*/
 	if(glIsTexture(*tex) == GL_FALSE){
 		glGenTextures(1, tex);
 		glBindTexture(GL_TEXTURE_2D, *tex);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
 
 	}
 	glBindTexture(GL_TEXTURE_2D, *tex);
-	glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)NULL);
 
+	/*	Transfer pixel data.	*/
+	if(g_support_pbo)
+		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)NULL);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)pixel);
 
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	/*	*/
+	glBindTexture(GL_TEXTURE_2D, 0);
+	if(g_support_pbo)
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER, 0);
+
 	/*	Release pixel data.	*/
 	free(desc->pixel);
 
