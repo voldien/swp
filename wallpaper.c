@@ -21,7 +21,7 @@
 
 #include <fcntl.h>
 #include <FreeImage.h>
-#include <GL/glext.h>
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,10 +36,14 @@
 #include <SDL2/SDL_thread.h>
 #include <unistd.h>
 
-
+/*	*/
 #ifdef GLES2
-#undef GLES2
-#include<GLES2/gl2.h>
+	#undef GLES2
+	#include<GLES2/gl2.h>
+	#include<GLES2/gl2ext.h>
+#else
+	#include <GL/gl.h>
+	#include <GL/glext.h>
 #endif
 
 
