@@ -30,7 +30,7 @@ extern const char* gc_fragment;			/*	Default fragment glsl shader.	*/
 extern const float gc_quad[4][3];		/*	Display quad vertices.	*/
 
 
-/*	global.	*/
+/*	Global.	*/
 extern int g_alive;						/*	Determine if application should continue be alive or not.*/
 extern unsigned int g_compression;		/*	Use compression.	*/
 extern unsigned int g_wallpaper;		/*	Wallpaper mode.	*/
@@ -58,8 +58,8 @@ typedef struct swp_transition_shader_t{
  *
  */
 typedef struct swp_rendering_s_t{
-	GLuint vao;						/*	*/
-	GLuint vbo;						/*	*/
+	GLuint vao;						/*	Vertex array object. Used for higher version of OpenGL.	*/
+	GLuint vbo;						/*	Vertex buffer object.	*/
 	GLint prog;						/*	Shader program.	*/
 
 	unsigned int numshaders;		/*	*/
@@ -127,12 +127,14 @@ extern void swpParseResolutionArgument(const char* arg, int* res);
 
 
 /**
+ *
  *	@Return number of bytes that was loaded from file.
  */
 extern long int swpLoadFile(const char* __restrict__ cfilename,
 		void** __restrict__ data);
 
 /**
+ *
  *	@Return number of bytes that was loaded from file.
  */
 extern long int swpLoadString(const char* __restrict__ cfilename,
@@ -157,11 +159,9 @@ extern unsigned int swpCheckExtensionSupported(const char* extension);
 /**
  *	create Shader.
  *
- *	@Return
+ *	@Return non-negative if successfully.
  */
 extern GLuint swpCreateShader(const char* vshader, const char* fshader);
-
-
 
 /**
  *	Get texture format from freeeimage color space data type.
@@ -212,7 +212,8 @@ extern void swpCatchSignal(int sig);
 /**
  *	Render display.
  */
-void swpRender(GLuint vao, SDL_Window* __restrict__ window, swpRenderingState* __restrict__ state);
+void swpRender(GLuint vao, SDL_Window* __restrict__ window,
+        swpRenderingState* __restrict__ state);
 
 
 

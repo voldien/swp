@@ -186,6 +186,7 @@ int main(int argc, char** argv){
 		status = EXIT_FAILURE;
 		goto error;
 	}
+	/*	*/
 	fdfifo = mkfifo(g_fifopath, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH | O_WRONLY);
 	if( fdfifo != 0){
 		fprintf(stderr, "Failed to create FIFO file %s\n", strerror(errno));
