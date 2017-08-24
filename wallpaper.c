@@ -676,9 +676,9 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	const unsigned int height = desc->height;
 	const unsigned int size = desc->size;
 
-	PFNGLMAPBUFFERPROC glMapBufferARB;
-	PFNGLBINDBUFFERARBPROC glBindBufferARB;
-	PFNGLBUFFERDATAARBPROC glBufferDataARB;
+	PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
+	PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
+	PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
 
 	swpVerbosePrintf("Loading texture from pixel data.\n");
 
