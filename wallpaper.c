@@ -552,6 +552,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	Load image from */
 	imgtype = FreeImage_GetFileTypeFromMemory(stream, totallen);
+	FreeImage_SeekMemory(stream, 0, SEEK_SET);
 	firsbitmap = FreeImage_LoadFromMemory(imgtype, stream, 0);
 	if( firsbitmap == NULL){
 		fprintf(stderr, "Failed to create free-image from memory.\n");
@@ -574,9 +575,9 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	swpVerbosePrintf("image color type %d\n", colortype);
 	switch(colortype){
 	case FIC_RGB:
-		bitmap = FreeImage_ConvertTo24Bits(firsbitmap);
+		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
 		desc->intfor = GL_RGB;
-		desc->format = GL_BGR;
+		desc->format = GL_BGRA;
 		break;
 	case FIC_RGBALPHA:
 		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
