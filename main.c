@@ -47,10 +47,13 @@ int main(int argc, char** argv){
 	int status = EXIT_SUCCESS;			/*	*/
 	int result;							/*	*/
 	int i;								/*	*/
+	int x;								/*	*/
 	int fd = 0;							/*	*/
 	int pipe = 0;						/*	*/
-	unsigned int timeout = INT32_MAX;	/*	*/
 	int fdfifo = 0;						/*	*/
+
+	int numtranssources = 0;
+	char** transsources = NULL;
 
 	/*	*/
 	int visible = 1;
@@ -71,7 +74,7 @@ int main(int argc, char** argv){
 	/*	*/
 	int c;
 	int index;
-	const char* shortopt = "vVdf:p:CwFbR:P:";
+	const char* shortopt = "vVdf:p:CwFbR:P:s:";
 	static struct option longoption[] = {
 			{"version", 	no_argument, 		NULL, 'v'},	/*	Version of the application.	*/
 			{"verbose", 	no_argument, 		NULL, 'V'},	/*	Enable verbose.	*/
@@ -146,18 +149,19 @@ int main(int argc, char** argv){
 			break;
 		case 's':
 			if(optarg){
-
 				void* fragdata = NULL;
 				int index = state.data.numshaders;
 				state.data.numshaders++;
 				state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
+				swpVerbosePrintf("Added %s.\n", optarg);
 				assert(state.data.shaders);
 				if( swpLoadString(optarg, &fragdata) > 0){
 					state.data.shaders[index].prog = swpCreateShader(gc_vertex, fragdata);
 					state.data.shaders[index].elapse = 0.120f;
 				}
-
 			}
+			break;
+		case 'B':
 			break;
 		case 'f':
 			if(optarg){
@@ -320,7 +324,11 @@ int main(int argc, char** argv){
 	glUniform1i(state.data.displayshader->texloc0, 0);
 
 
-	/*	Load texture from file.	*/
+
+	/*	*/
+	swpLoadTransitionShaders(&state, numtranssources, transsources);
+
+	/*	Load textuer from file.	*/
 	if(fd > 0 ){
 		swpTextureDesc desc = { 0 };
 		swpReadPicFromfd(fd, &desc);
@@ -345,7 +353,8 @@ int main(int argc, char** argv){
 	while(g_alive != 0){
 
 		/*	Wait intill incoming event.	*/
-		while(SDL_WaitEventTimeout(&event, timeout)){
+		while(SDL_WaitEventTimeout(&event, state.timeout)){
+
 			switch(event.type){
 			case SDL_APP_TERMINATING:
 			case SDL_QUIT:
@@ -409,19 +418,17 @@ int main(int argc, char** argv){
 				glBindTexture(GL_TEXTURE_2D, state.data.texs[state.data.curtex]);
 				state.data.curtex = (state.data.curtex + 1) % state.data.numtexs;
 
-
+				/*	Set transition state.	*/
+				if(state.data.numshaders > 0 ){
+					state.inTransition = 1;
+					state.toTexIndex = state.data.texs[state.data.curtex];
+					state.fromTexIndex = state.data.texs[(state.data.curtex - 1) % state.data.numtexs];
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, state.fromTexIndex);
+				}
 				if(visible){
 					swpRender(vao, window, &state);
 				}
-
-				/*	Bind.	*/
-				/*
-				state.inTransition = 1;
-				state.toTexIndex = texs[curtex];
-				state.fromTexIndex = texs[curtex - 1 % 4];
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, state.fromTexIndex);
-				*/
 
 				break;
 			default:

@@ -48,10 +48,11 @@ extern int g_support_pbo;				/*	Pixel buffer object for fast image transfer.	*/
 #define SWP_NUM_TEXTURES 3
 
 typedef struct swp_transition_shader_t{
-	GLuint prog;				/*	Shader program.	*/
-	float elapse;				/*	*/
-	GLint texloc0;				/*	Transition from texture.	*/
-	GLint texloc1;				/*	*/
+	GLuint prog;				/*	Shader program unique ID.	*/
+	float elapse;				/*	How time the shader will run.	*/
+	GLint normalizedurloc;		/*						*/
+	GLint texloc0;				/*	Texture location.	*/
+	GLint texloc1;				/*	Texture location.	*/
 }swpTransitionShader;
 
 /**
@@ -62,11 +63,12 @@ typedef struct swp_rendering_s_t{
 	GLuint vbo;						/*	*/
 	GLint prog;						/*	Shader program.	*/
 
+
 	unsigned int numshaders;		/*	*/
 	swpTransitionShader* shaders;	/*	*/
 	swpTransitionShader* displayshader;
 
-	GLint numtexs;					/*	number of textures in buffer.	*/
+	GLint numtexs;					/*	Number of textures in buffer.	*/
 	GLuint texs[SWP_NUM_TEXTURES];	/*	texture*/
 	GLint curtex;					/*	Current texture displayed.	*/
 	GLuint pbo[SWP_NUM_TEXTURES];	/*	Pixel buffer object.*/
@@ -84,6 +86,7 @@ typedef struct swp_rendering_state_t{
 	unsigned int toTexIndex;			/*	*/
 	float elapseTransition;				/*	*/
 	swpRenderingData data;				/*	*/
+	unsigned int timeout;
 }swpRenderingState;
 
 /**

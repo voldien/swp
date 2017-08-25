@@ -941,13 +941,16 @@ void swpRender(GLuint vao, SDL_Window* window, swpRenderingState* state){
 
 	if(state->inTransition){
 
-		GLuint prog;
+		swpTransitionShader* trashader;
 		int glprindex = rand() % state->data.numshaders;	/*	TODO replace later*/
 
-		prog = state->data.shaders[glprindex].prog;
-		glUseProgram(prog);
 
-		/*	*/
+		trashader = &state->data.shaders[glprindex];
+
+		glUseProgram(trashader->prog);
+		glUniform1f(trashader->prog, trashader->normalizedurloc, state->elapseTransition);
+
+		/*	Check if transition is over.	*/
 		if(state->data.shaders[glprindex].elapse < state->elapseTransition){
 			state->inTransition = 0;
 			glUseProgram(state->data.displayshader->prog);
