@@ -1,5 +1,5 @@
 /**
-	simple wallpaper program.
+    Simple wallpaper program.
     Copyright (C) 2016  Valdemar Lindberg
 
     This program is free software: you can redistribute it and/or modify
@@ -43,6 +43,7 @@ extern FILE* g_verbosefd;				/*	Verbose file descriptor.	*/
 extern int g_winres[2];					/*	Window resolution.	*/
 extern int g_winpos[2];					/*	Window position.	*/
 extern int g_maxtexsize;				/*	OpenGL max texture size, (Check texture proxy later)*/
+extern int g_support_pbo;				/*	Pixel buffer object for fast image transfer.	*/
 
 #define SWP_NUM_TEXTURES 3
 
@@ -128,7 +129,14 @@ extern void swpParseResolutionArgument(const char* arg, int* res);
 /**
  *	@Return number of bytes that was loaded from file.
  */
-extern long int swpLoadFile(const char* cfilename, void** data);
+extern long int swpLoadFile(const char* __restrict__ cfilename,
+		void** __restrict__ data);
+
+/**
+ *	@Return number of bytes that was loaded from file.
+ */
+extern long int swpLoadString(const char* __restrict__ cfilename,
+		void** __restrict__ data);
 
 
 /**
@@ -140,6 +148,11 @@ extern void swpGenerateQuad(GLuint* vao, GLuint* vbo);
  *	Get GLSL version in decimal.
  */
 extern unsigned int swpGetGLSLVersion(void);
+
+/**
+ *
+ */
+extern unsigned int swpCheckExtensionSupported(const char* extension);
 
 /**
  *	create Shader.

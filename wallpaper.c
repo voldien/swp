@@ -1,5 +1,5 @@
 /**
-	simple wallpaper program.
+    Simple wallpaper program.
     Copyright (C) 2016  Valdemar Lindberg
 
     This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 
 #include <fcntl.h>
 #include <FreeImage.h>
-#include <GL/glext.h>
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,39 +36,53 @@
 #include <SDL2/SDL_thread.h>
 #include <unistd.h>
 
-
+/*	*/
 #ifdef GLES2
-#undef GLES2
-#include<GLES2/gl2.h>
+	#undef GLES2
+	#include<GLES2/gl2.h>
+	#include<GLES2/gl2ext.h>
+#else
+	#include <GL/gl.h>
+	#include <GL/glext.h>
 #endif
 
 
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
-"#if __VERSION__ >= 330\n"
+"#if __VERSION__ > 130\n"
 "layout(location = 0) in vec3 vertex;\n"
 "#else\n"
 "attribute vec3 vertex;\n"
 "#endif\n"
+"#if __VERSION__ > 120\n"
 "smooth out vec2 uv;\n"
+"#else\n"
+"varying vec2 uv;\n"
+"#endif\n"
 "void main(void){\n"
-"gl_Position = vec4(vertex,1.0);\n"
-"uv = (vertex.xy + vec2(1.0)) / 2.0;"
+"	gl_Position = vec4(vertex,1.0);\n"
+"	uv = (vertex.xy + vec2(1.0)) / 2.0;"
 "}\n";
 
 /*	Default fragment shader.	*/
 const char* gc_fragment = ""
-"#if __VERSION__ >= 330\n"
+"#if __VERSION__ > 130\n"
 "layout(location = 0) out vec4 fragColor;\n"
+"#elif __VERSION__ == 130\n"
+"out vec4 fragColor;\n"
 "#endif\n"
 "uniform sampler2D tex0;\n"
+"#if __VERSION__ > 120\n"
 "smooth in vec2 uv;\n"
-"void main(void){\n"
-"#if __VERSION__ >= 330\n"
-"fragColor = texture(tex0, uv);\n"
 "#else\n"
-"gl_FragColor = texture(tex0, uv);\n"
+"varying vec2 uv;\n"
 "#endif\n"
+"void main(void){\n"
+"	#if __VERSION__ > 120\n"
+"	fragColor = texture(tex0, uv);\n"
+"	#else\n"
+"	gl_FragColor = texture2D(tex0, uv);\n"
+"	#endif\n"
 "}\n";
 
 
@@ -95,6 +109,7 @@ FILE* g_verbosefd = NULL;				/*	Verbose file descriptor.	*/
 int g_winres[2] = {-1,-1};				/*	Window resolution.	*/
 int g_winpos[2] = {-1,-1};				/*	Window position.	*/
 int g_maxtexsize;
+int g_support_pbo = 0;
 
 
 typedef void (APIENTRY *DEBUGPROC)(GLenum source,
@@ -302,6 +317,20 @@ long int swpLoadFile(const char* cfilename, void** data){
 	return nBytes;
 }
 
+long int swpLoadString(const char* __restrict__ cfilename,
+		void** __restrict__ data){
+
+	long int l;
+
+	l = swpLoadFile(cfilename, data);
+	if(l > 0){
+		*data = realloc(*data, l + 1);
+		((char**)*data)[l] = '\0';
+	}
+
+	return l;
+}
+
 void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 
 	swpVerbosePrintf("Generating display quad.\n");
@@ -334,6 +363,36 @@ unsigned int swpGetGLSLVersion(void){
 
 	return version;
 }
+
+unsigned int swpCheckExtensionSupported(const char* extension){
+
+	int i;
+	GLint k;
+	PFNGLGETSTRINGIPROC glGetStringi = NULL;
+
+	/*	*/
+	glGetStringi = (PFNGLGETSTRINGIPROC)SDL_GL_GetProcAddress("glGetStringi");
+
+	/*	*/
+	if(glGetStringi){
+
+		/*	*/
+		glGetIntegerv(GL_NUM_EXTENSIONS, &k);
+
+		/*	Iterate each extensions.	*/
+		for(i = 0; i < k; i++){
+			const GLubyte* nextension = glGetStringi(GL_EXTENSIONS, i);
+			if(nextension){
+				if(strstr(nextension, extension))
+					return 1;
+			}
+		}
+	}else
+		return strstr(glGetString(GL_EXTENSIONS), extension) != NULL;
+
+	return 0;
+}
+
 
 GLuint swpCreateShader(const char* vshader, const char* fshader){
 
@@ -520,6 +579,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	Load image from */
 	imgtype = FreeImage_GetFileTypeFromMemory(stream, totallen);
+	FreeImage_SeekMemory(stream, 0, SEEK_SET);
 	firsbitmap = FreeImage_LoadFromMemory(imgtype, stream, 0);
 	if( firsbitmap == NULL){
 		fprintf(stderr, "Failed to create free-image from memory.\n");
@@ -542,9 +602,9 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	swpVerbosePrintf("image color type %d\n", colortype);
 	switch(colortype){
 	case FIC_RGB:
-		bitmap = FreeImage_ConvertTo24Bits(firsbitmap);
+		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
 		desc->intfor = GL_RGB;
-		desc->format = GL_BGR;
+		desc->format = GL_BGRA;
 		break;
 	case FIC_RGBALPHA:
 		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
@@ -638,15 +698,19 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	GLenum err = 0;							/*	*/
 	GLubyte* pbuf = NULL;					/*	*/
 
-	/**/
+	/*	*/
 	const void* pixel = desc->pixel;
-	unsigned int width = desc->width;
-	unsigned int height = desc->height;
-	unsigned int size = desc->size;
+	const unsigned int width = desc->width;
+	const unsigned int height = desc->height;
+	const unsigned int size = desc->size;
+
+	PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
+	PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
+	PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
 
 	swpVerbosePrintf("Loading texture from pixel data.\n");
 
-	/*	*/
+	/*	Get compression.	*/
 	if(g_compression){
 		switch(intfor){
 		case GL_RGB:
@@ -660,51 +724,74 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		}
 	}
 
+	/*	TODO check if PBO is supported.	*/
+	if(g_support_pbo){
 
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-#if !defined(GLES2) || defined(GLES3)
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY);
-#else
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, size, NULL, GL_STREAM_COPY);
-	err = glGetError();
-	if( err != GL_NO_ERROR){
-		fprintf(stderr, "Error on glBufferData %d.\n", err);
-		return 0;
-	}
-	pbuf = (GLbyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+		/**/
+		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
-	if(pbuf == NULL){
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
+	#if defined(GLES2) || defined(GLES3)
+		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY_ARB);
+	#else
+
+		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, size, NULL, GL_STREAM_DRAW_ARB);
 		err = glGetError();
-		fprintf(stderr, "Bad pointer %i\n", err);
-		return 0;
-	}
-	swpVerbosePrintf("Copying %d bytes to PBO (%d MB).\n", size, size / (1024 * 1024));
-	memcpy(pbuf, pixel, size);
-	status = glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-	if( status != GL_TRUE){
-		fprintf(stderr, "Error when unmapping pbo buffer, %d\n", glGetError());
-	}
+		if( err != GL_NO_ERROR){
+			fprintf(stderr, "Error on glBufferData %d.\n", err);
+			return 0;
+		}
+		pbuf = (GLubyte*)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,
+				GL_WRITE_ONLY_ARB);
+
+		if(pbuf == NULL){
+			err = glGetError();
+			fprintf(stderr, "Bad pointer %i\n", err);
+			return 0;
+		}
+		swpVerbosePrintf("Copying %d bytes to PBO (%d MB).\n", size, size / (1024 * 1024));
+		memcpy(pbuf, pixel, size);
+		status = glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
+		if( status != GL_TRUE){
+			fprintf(stderr, "Error when unmapping pbo buffer, %d\n", glGetError());
+		}
 #endif
+	}
+
 
 	/*	Create texture.	*/
 	if(glIsTexture(*tex) == GL_FALSE){
 		glGenTextures(1, tex);
 		glBindTexture(GL_TEXTURE_2D, *tex);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
 
 	}
 	glBindTexture(GL_TEXTURE_2D, *tex);
-	glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)NULL);
 
+	/*	Transfer pixel data.	*/
+	if(g_support_pbo)
+		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)NULL);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)pixel);
 
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	/*	*/
+	glBindTexture(GL_TEXTURE_2D, 0);
+	if(g_support_pbo)
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER, 0);
+
 	/*	Release pixel data.	*/
 	free(desc->pixel);
 

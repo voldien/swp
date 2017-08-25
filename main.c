@@ -1,5 +1,5 @@
 /**
-	Simple wallpaper application.
+    Simple wallpaper application.
     Copyright (C) 2016  Valdemar Lindberg
 
     This program is free software: you can redistribute it and/or modify
@@ -152,7 +152,7 @@ int main(int argc, char** argv){
 				state.data.numshaders++;
 				state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
 				assert(state.data.shaders);
-				if( swpLoadFile(optarg, &fragdata) > 0){
+				if( swpLoadString(optarg, &fragdata) > 0){
 					state.data.shaders[index].prog = swpCreateShader(gc_vertex, fragdata);
 					state.data.shaders[index].elapse = 0.120f;
 				}
@@ -305,8 +305,11 @@ int main(int argc, char** argv){
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
 
+	g_support_pbo = swpCheckExtensionSupported("GL_ARB_pixel_buffer_object");
+
 	/*	Create Pixel buffer object.	*/
-	glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
+	if(g_support_pbo)
+		glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
 
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];
