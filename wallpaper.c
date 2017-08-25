@@ -119,7 +119,7 @@ typedef void (APIENTRY *DEBUGPROC)(GLenum source,
 		GLsizei length,
 		const GLchar *message,
 		void *userParam);
-typedef void(*glDebugMessageCallback)(DEBUGPROC,void*);
+typedef void(*glDebugMessageCallback)(DEBUGPROC, void*);
 
 
 int swpVerbosePrintf(const char* format,...){
@@ -139,7 +139,8 @@ const char* swpGetVersion(void){
 	return SWP_STR_VERSION;
 }
 
-void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam){
+void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
+        GLsizei length, const GLchar* message, GLvoid* userParam) {
 
 	char* stringStream;
     char* sourceString;
@@ -294,13 +295,11 @@ long int swpLoadFile(const char* cfilename, void** data){
 	long int pos;		/*	*/
 	long int nBytes;	/*	*/
 
-
 	f = fopen(cfilename, "rb");
 	if(f == NULL){
 		fprintf(stderr, "Failed to open %s, %s.\n", cfilename, strerror(errno) );
 		return -1;
 	}
-
 
 	/*	Determine size of file.	*/
 	fseek(f, 0, SEEK_END);
@@ -418,7 +417,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	vsources[0] = glversion;
 	fsources[0] = glversion;
 
-
+	/*	*/
 	prog = glCreateProgram();
 
 	if(vshader != NULL){
@@ -587,19 +586,17 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 		return -1;
 	}
 
-
-	/*	*/
+	/*	Reset to beginning of stream.	*/
 	FreeImage_SeekMemory(stream, 0, SEEK_SET);
 	imgt = FreeImage_GetImageType(firsbitmap);
 	colortype = FreeImage_GetColorType(firsbitmap);
 
-
 	/*	Input data type.	*/
-	swpVerbosePrintf("image pixel data type %d\n", imgt);
+	swpVerbosePrintf("Image pixel data type %d\n", imgt);
 	desc->imgdatatype = swpGetGLTextureFormat(imgt);
 
 	/*	Get texture color type.	*/
-	swpVerbosePrintf("image color type %d\n", colortype);
+	swpVerbosePrintf("Image color type %d\n", colortype);
 	switch(colortype){
 	case FIC_RGB:
 		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
@@ -628,7 +625,6 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 		return -1;
 	}
 
-
 	/*	Check if the conversion was successfully.	*/
 	if(bitmap == NULL){
 		fprintf(stderr, "Failed to convert bitmap.\n");
@@ -637,16 +633,15 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 		return -1;
 	}
 
-
 	/*	Get attributes from the image.	*/
 	pixel = FreeImage_GetBits(bitmap);
 	width = FreeImage_GetWidth(bitmap);
 	height = FreeImage_GetHeight(bitmap);
 	bpp = ( FreeImage_GetBPP(bitmap) / 8 );
 	size = width * height * bpp;
-	swpVerbosePrintf("%d kb, %d %dx%d\n", size / 1024, imgtype, width, height);
+	swpVerbosePrintf("%d kb, %d %dx%d\n", ( size / 1024 ), imgtype, width, height);
 
-	/*	Check size.	*/
+	/*	Check size is supported by opengl driver.	*/
 	if(width > g_maxtexsize || height > g_maxtexsize){
 		fprintf(stderr, "Texture to big(limit %d), %dx%d.\n", g_maxtexsize, width, height);
 		FreeImage_Unload(firsbitmap);
@@ -655,7 +650,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 		return -1;
 	}
 
-	/*	Check error.	*/
+	/*	Check error and release resources.	*/
 	if(pixel == NULL || size == 0 ){
 		fprintf(stderr, "Failed getting pixel data from FreeImage.\n");
 		FreeImage_Unload(firsbitmap);
@@ -678,7 +673,6 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	desc->height = height;
 	desc->bpp = bpp;
 
-
 	/*	Release free image resources.	*/
 	FreeImage_Unload(bitmap);
 	FreeImage_Unload(firsbitmap);
@@ -686,6 +680,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	return totallen;
 }
+
 
 
 
@@ -724,10 +719,9 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		}
 	}
 
-	/*	TODO check if PBO is supported.	*/
 	if(g_support_pbo){
 
-		/**/
+		/*	Get function address.	*/
 		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
 		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
 		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
@@ -759,7 +753,6 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		}
 #endif
 	}
-
 
 	/*	Create texture.	*/
 	if(glIsTexture(*tex) == GL_FALSE){
@@ -827,7 +820,7 @@ void swpSetWallpaper(SDL_Window* window){
 
 void swpSetFullscreen(SDL_Window* window, Uint32 fullscreen){
 
-	//SDL_SetWindowDisplayMode(window, mode);
+	/*SDL_SetWindowDisplayMode(window, mode);	*/
 	SDL_SetWindowFullscreen(window, fullscreen);
 }
 
@@ -935,7 +928,8 @@ void swpCatchSignal(int sig){
 	}
 }
 
-void swpRender(GLuint vao, SDL_Window* window, swpRenderingState* state){
+void swpRender(GLuint vao, SDL_Window* __restrict__ window,
+        swpRenderingState* __restrict__ state) {
 
 	swpVerbosePrintf("Render view.\n");
 
