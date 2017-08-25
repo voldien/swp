@@ -73,25 +73,24 @@ int main(int argc, char** argv){
 	int index;
 	const char* shortopt = "vVdf:p:CwFbR:P:";
 	static struct option longoption[] = {
-			{"version", 	no_argument, 		NULL, 'v'},	/*	Version of the application.	*/
-			{"verbose", 	no_argument, 		NULL, 'V'},	/*	Enable verbose.	*/
-			{"debug",		no_argument,		NULL, 'd'},	/*	Enable internal debug feature.	*/
-			{"wallpaper", 	no_argument,	 	NULL, 'w'},	/*	Set display as wallpaper.	*/
-			{"fullscreen", 	no_argument, 		NULL, 'F'},	/*	Set as fullscreen.	*/
-			{"borderless", 	no_argument, 		NULL, 'b'},	/*	Set window border less.*/
-			{"compression", optional_argument, 	NULL, 'C'},	/*	Enable compression or texture.	*/
-			{"fifo", 		required_argument, 	NULL, 'p'},	/*	Path for the FIFO.	*/
-			{"resolution",	required_argument, 	NULL, 'R'},	/*	Set window resolution.	*/
-			{"position",	required_argument, 	NULL, 'P'},	/*	Set window position.	*/
-			{"shader",		required_argument, 	NULL, 's'},	/*	*/
-			{"socket",		required_argument,	NULL, 'S'},	/*	Listen on socket.	*/
-			{"file",		required_argument,	NULL, 'f'},	/*	File to load picture from.	*/
-			{"filter",		required_argument,	NULL, 'B'},	/*	Filter.	*/
+		{"version",     no_argument, 		NULL, 'v'},	/*	Version of the application.	*/
+		{"verbose",     no_argument, 		NULL, 'V'},	/*	Enable verbose.	*/
+		{"debug",       no_argument,		NULL, 'd'},	/*	Enable internal debug feature.	*/
+		{"wallpaper",   no_argument,	 	NULL, 'w'},	/*	Set display as wallpaper.	*/
+		{"fullscreen",  no_argument, 		NULL, 'F'},	/*	Set as fullscreen.	*/
+		{"borderless",  no_argument, 		NULL, 'b'},	/*	Set window border less.*/
+		{"compression", optional_argument, 	NULL, 'C'},	/*	Enable compression or texture.	*/
+		{"fifo",        required_argument, 	NULL, 'p'},	/*	Path for the FIFO.	*/
+		{"resolution",  required_argument, 	NULL, 'R'},	/*	Set window resolution.	*/
+		{"position",    required_argument, 	NULL, 'P'},	/*	Set window position.	*/
+		{"shader",      required_argument, 	NULL, 's'},	/*	*/
+		{"socket",      required_argument,	NULL, 'S'},	/*	Listen on socket.	*/
+		{"file",        required_argument,	NULL, 'f'},	/*	File to load picture from.	*/
+		{"filter",      required_argument,	NULL, 'B'},	/*	Filter.	*/
 
-
-			{"row",			required_argument, 	NULL, 'r'},
-			{"column",		required_argument, 	NULL, 'c'},
-			{NULL, 0, NULL, 0},
+		{"row",         required_argument, 	NULL, 'r'},
+		{"column",      required_argument, 	NULL, 'c'},
+		{NULL, 0, NULL, 0},
 	};
 
 
