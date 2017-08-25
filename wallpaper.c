@@ -474,12 +474,14 @@ void swpLoadTransitionShaders(swpRenderingState* state, unsigned int count, char
 
 	int x;
 
-	swpVerbosePrintf("Loading %d transition shaders.\n", count);
+	swpVerbosePrintf("Loading %d number of transition shaders.\n", count);
 
 	/*	Iterate through each shader.	*/
 	for(x = 0; x < count; x++){
 		void* fragdata = NULL;
-		int index = state->data.numshaders;
+
+		/*	*/
+		const int index = state->data.numshaders;
 		swpTransitionShader* trans;
 
 		state->data.numshaders++;
@@ -487,7 +489,8 @@ void swpLoadTransitionShaders(swpRenderingState* state, unsigned int count, char
 		assert(state->data.shaders);
 		trans = &state->data.shaders[index];
 
-		/*	*/
+		/*	Load shader.	*/
+		swpVerbosePrintf("Loading %s.\n", optarg);
 		if( swpLoadFile(optarg, &fragdata) > 0){
 			trans->prog = swpCreateShader(gc_vertex, fragdata);
 			trans->elapse = 1.120f;
