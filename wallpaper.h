@@ -104,7 +104,7 @@ typedef struct swp_texture_desc_t{
 /**
  *	Verbose stdout print.
  *
- *	@Return Number
+ *	@Return Number of bytes written.
  */
 extern int swpVerbosePrintf(const char* format,...);
 
@@ -125,7 +125,6 @@ extern void swpEnableDebug(void);
  */
 extern void swpParseResolutionArgument(const char* arg, int* res);
 
-
 /**
  *
  *	@Return number of bytes that was loaded from file.
@@ -140,7 +139,6 @@ extern long int swpLoadFile(const char* __restrict__ cfilename,
 extern long int swpLoadString(const char* __restrict__ cfilename,
 		void** __restrict__ data);
 
-
 /**
  *	Generate Quad with two triangle in GL_ARRAY_BUFFER mode.
  */
@@ -152,7 +150,10 @@ extern void swpGenerateQuad(GLuint* vao, GLuint* vbo);
 extern unsigned int swpGetGLSLVersion(void);
 
 /**
+ *	Check if OpenGL extension is supported on current
+ *	OpenGL context.
  *
+ *	@Return non-zero if supported, zero otherwise.
  */
 extern unsigned int swpCheckExtensionSupported(const char* extension);
 
