@@ -52,8 +52,9 @@ int main(int argc, char** argv){
 	int pipe = 0;						/*	*/
 	int fdfifo = 0;						/*	*/
 
-	int numtranssources = 0;
-	char** transsources = NULL;
+	/*	*/
+	int numtranspaths = 0;
+	char** transfilepaths = NULL;
 
 	/*	*/
 	int visible = 1;
@@ -95,14 +96,6 @@ int main(int argc, char** argv){
 		{"column",      required_argument, 	NULL, 'c'},
 		{NULL, 0, NULL, 0},
 	};
-
-
-	/*	Initialize rendering data.	*/
-	state.data.numtexs = SWP_NUM_TEXTURES;
-	state.data.curtex = 0;
-	state.data.numshaders = 1;
-	state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
-
 
 	while( ( c = getopt_long(argc, argv, shortopt, longoption, &index) ) != EOF){
 		switch(c){
@@ -148,16 +141,9 @@ int main(int argc, char** argv){
 			break;
 		case 's':
 			if(optarg){
-				void* fragdata = NULL;
-				int index = state.data.numshaders;
-				state.data.numshaders++;
-				state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
-				swpVerbosePrintf("Added %s.\n", optarg);
-				assert(state.data.shaders);
-				if( swpLoadString(optarg, &fragdata) > 0){
-					state.data.shaders[index].prog = swpCreateShader(gc_vertex, fragdata);
-					state.data.shaders[index].elapse = 0.120f;
-				}
+				transfilepaths = realloc(transfilepaths, sizeof(char*) * ( numtranspaths + 1 ));
+				transfilepaths[numtranspaths] = optarg;
+				numtranspaths++;
 			}
 			break;
 		case 'B':
@@ -309,11 +295,12 @@ int main(int argc, char** argv){
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
 
-	g_support_pbo = swpCheckExtensionSupported("GL_ARB_pixel_buffer_object");
 
-	/*	Create Pixel buffer object.	*/
-	if(g_support_pbo)
-		glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
+	/*	Initialize rendering data.	*/
+	state.data.numtexs = SWP_NUM_TEXTURES;
+	state.data.curtex = 0;
+	state.data.numshaders = 1;
+	state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
 
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];
@@ -323,10 +310,28 @@ int main(int argc, char** argv){
 	glUseProgram(state.data.displayshader->prog);
 	glUniform1i(state.data.displayshader->texloc0, 0);
 
+	/*	*/
+	if(numtranspaths > 0)
+		swpLoadTransitionShaders(&state, numtranspaths, transfilepaths);
+	else{
 
+		swpTransitionShader* trans;
+		/*	Create default transition shader.	*/
+		state.data.numshaders++;
+		state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
+		assert(state.data.shaders);
+		trans = &state.data.shaders[state.data.numshaders - 1];
+
+		/*	Load shader.	*/
+		swpCreateTransitionShaders(trans, gc_fade_transition_fragment);
+	}
 
 	/*	*/
-	swpLoadTransitionShaders(&state, numtranssources, transsources);
+	g_support_pbo = swpCheckExtensionSupported("GL_ARB_pixel_buffer_object");
+
+	/*	Create Pixel buffer object.	*/
+	if(g_support_pbo)
+		glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
 
 	/*	Load textuer from file.	*/
 	if(fd > 0 ){
