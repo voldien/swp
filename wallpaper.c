@@ -673,6 +673,7 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	const unsigned int size = desc->size;
 
 	PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
+	PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
 	PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
 	PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
 
@@ -697,11 +698,12 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		/*	Get function address.	*/
 		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
 		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+		glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
 		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
 	#if defined(GLES2) || defined(GLES3)
-		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY_ARB);
+		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_DRAW_ARB);
 	#else
 
 		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, size, NULL, GL_STREAM_DRAW_ARB);
