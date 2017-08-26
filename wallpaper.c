@@ -907,6 +907,7 @@ void* swpCatchPipedTexture(void* phandle){
 
 				/*	Send event to the main thread that will process the data.	*/
 				if(status > 0){
+					event.user.code = 0;
 					event.type = SDL_USEREVENT;
 					event.user.data1 = &desc[curdesc];
 					SDL_PushEvent(&event);
@@ -954,21 +955,27 @@ void swpCatchSignal(int sig){
 void swpRender(GLuint vao, SDL_Window* __restrict__ window,
         swpRenderingState* __restrict__ state) {
 
-	swpVerbosePrintf("Render view.\n");
+	/*	*/
+	if(state->inTransition != 0){
 
 	if(state->inTransition){
 
 		swpTransitionShader* trashader;
 		int glprindex = rand() % state->data.numshaders;	/*	TODO replace later*/
 
+		/*	*/
+		assert(state->data.numshaders < 2);
 
+		/*	*/
 		trashader = &state->data.shaders[glprindex];
 
+		/*	*/
 		glUseProgram(trashader->prog);
 		glUniform1f(trashader->prog, trashader->normalizedurloc, state->elapseTransition);
 
-		/*	Check if transition is over.	*/
-		if(state->data.shaders[glprindex].elapse < state->elapseTransition){
+		/*	Check if transition has ended.	*/
+		if(state->elapseTransition > state->data.shaders[glprindex].elapse){
+			/*	Disable transition.	*/
 			state->inTransition = 0;
 			glUseProgram(state->data.displayshader->prog);
 		}
