@@ -172,7 +172,15 @@ extern GLuint swpCreateShader(const char* vshader, const char* fshader);
  *
  */
 extern void swpLoadTransitionShaders(swpRenderingState* __restrict__ state,
-		unsigned int count, char** __restrict__ sources);
+		unsigned int count, const char** __restrict__ sources);
+
+/**
+ *	Create transition shader and get uniform
+ *	located associated and cache it.
+ *
+ */
+extern void swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
+		const char* __restrict__ source);
 
 /**
  *	Get texture format from freeeimage color space data type.

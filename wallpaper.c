@@ -490,7 +490,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	return prog;
 }
 
-void swpLoadTransitionShaders(swpRenderingState* state, unsigned int count, char** sources){
+void swpLoadTransitionShaders(swpRenderingState* __restrict__ state, unsigned int count, const char** __restrict__ sources){
 
 	int x;
 
@@ -499,25 +499,43 @@ void swpLoadTransitionShaders(swpRenderingState* state, unsigned int count, char
 	/*	Iterate through each shader.	*/
 	for(x = 0; x < count; x++){
 		void* fragdata = NULL;
+		const char* fsource = sources[x];
 
 		/*	*/
 		const int index = state->data.numshaders;
 		swpTransitionShader* trans;
 
+		/*	*/
 		state->data.numshaders++;
 		state->data.shaders = realloc(state->data.shaders, state->data.numshaders * sizeof(swpTransitionShader));
 		assert(state->data.shaders);
 		trans = &state->data.shaders[index];
 
 		/*	Load shader.	*/
-		swpVerbosePrintf("Loading %s.\n", optarg);
-		if( swpLoadFile(optarg, &fragdata) > 0){
-			trans->prog = swpCreateShader(gc_vertex, fragdata);
-			trans->elapse = 1.120f;
-			trans->normalizedurloc = glGetUniformLocation(trans->prog, "normalizedur");
+		swpVerbosePrintf("Loading %s.\n", fsource);
+		if( swpLoadFile(fsource, &fragdata) > 0){
+			swpCreateTransitionShaders(trans, fragdata);
 		}
 
 	}
+}
+
+void swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans, const char* __restrict__ source){
+
+	trans->prog = swpCreateShader(gc_vertex, source);
+	trans->elapse = 1.120f;
+
+	/*	*/
+	trans->normalizedurloc = glGetUniformLocation(trans->prog, "normalizedur");
+	trans->texloc0 = glGetUniformLocation(trans->prog, "tex0");
+	trans->texloc1 = glGetUniformLocation(trans->prog, "tex1");
+
+	/*	*/
+	glUseProgram(trans->prog);
+	glUniform1i(trans->texloc0, 0);
+	glUniform1i(trans->texloc1, 1);
+	glUniform1f(trans->normalizedurloc, 0.0f);
+
 }
 
 
