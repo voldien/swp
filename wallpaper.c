@@ -46,7 +46,6 @@
 	#include <GL/glext.h>
 #endif
 
-
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
 "#if __VERSION__ > 130\n"
@@ -413,6 +412,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	strcore = ( value == SDL_GL_CONTEXT_PROFILE_CORE ) ? "core" : "";
 
 	/*	Create version string.	*/
+	memset(glversion, 0, sizeof(glversion));
 	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), strcore);	/*	TODO evalute.*/
 	vsources[0] = glversion;
 	fsources[0] = glversion;
