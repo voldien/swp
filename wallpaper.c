@@ -976,10 +976,12 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 	/*	*/
 	if(state->inTransition != 0){
 
-	if(state->inTransition){
+		/*	*/
+		const swpTransitionShader* trashader;
+		int glprindex = state->data.numshaders - 1;
+		float normalelapse;
 
-		swpTransitionShader* trashader;
-		int glprindex = rand() % state->data.numshaders;	/*	TODO replace later*/
+		swpVerbosePrintf("Render Transition view.\n");
 
 		/*	*/
 		assert(state->data.numshaders < 2);
@@ -989,14 +991,23 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 
 		/*	*/
 		glUseProgram(trashader->prog);
-		glUniform1f(trashader->prog, trashader->normalizedurloc, state->elapseTransition);
+
+		/*	Update normalize elapse time.	*/
+		normalelapse = (state->elapseTransition / state->data.shaders[glprindex].elapse);
+		glUniform1fv(trashader->normalizedurloc, 1, &normalelapse);
 
 		/*	Check if transition has ended.	*/
 		if(state->elapseTransition > state->data.shaders[glprindex].elapse){
 			/*	Disable transition.	*/
 			state->inTransition = 0;
-			glUseProgram(state->data.displayshader->prog);
+			glUseProgram(state->data.shaders[0].prog);
 		}
+
+		/*	Update.	*/
+		SDL_Event event = {0};
+		event.type = SDL_USEREVENT;
+		event.user.code = 1;
+		SDL_PushEvent(&event);
 	}
 
 	/*	Draw quad.	*/
