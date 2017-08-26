@@ -414,25 +414,50 @@ int main(int argc, char** argv){
 
 				break;
 			case SDL_USEREVENT:
-				/*	Event for when the picture has been loaded from file to memory.	*/
-				swpLoadTextureFromMem(&state.data.texs[state.data.curtex],
-						state.data.pbo[state.data.curtex],
-						(swpTextureDesc*)event.user.data1);
-				glFinish();
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, state.data.texs[state.data.curtex]);
-				state.data.curtex = (state.data.curtex + 1) % state.data.numtexs;
 
-				/*	Set transition state.	*/
-				if(state.data.numshaders > 0 ){
-					state.inTransition = 1;
-					state.toTexIndex = state.data.texs[state.data.curtex];
-					state.fromTexIndex = state.data.texs[(state.data.curtex - 1) % state.data.numtexs];
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, state.fromTexIndex);
-				}
-				if(visible){
-					swpRender(vao, window, &state);
+				/*	Event for when the picture has been loaded from file to memory.	*/
+				if(event.user.code == 0){
+
+					/*	*/
+					swpLoadTextureFromMem(&state.data.texs[state.data.curtex],
+							state.data.pbo[state.data.curtex],
+							(swpTextureDesc*)event.user.data1);
+					state.data.curtex = (state.data.curtex + 1) % state.data.numtexs;
+					glFinish();
+
+					/*	Set transition state.	*/
+					if(state.data.numshaders > 1 ){
+						state.elapseTransition = 0.0f;
+						state.inTransition = 1;
+
+						/*	*/
+						printf("%d.\n", (state.data.curtex - 2) % state.data.numtexs);
+						state.fromTexIndex = state.data.texs[((state.data.curtex - 2) + SWP_NUM_TEXTURES) % state.data.numtexs];
+						state.toTexIndex = state.data.texs[((state.data.curtex - 1) + SWP_NUM_TEXTURES) % state.data.numtexs];
+
+						/*	*/
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, state.toTexIndex);
+
+						/*	*/
+						glActiveTexture(GL_TEXTURE1);
+						glBindTexture(GL_TEXTURE_2D, state.fromTexIndex);
+
+					}else{
+						/*	*/
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, state.data.texs[state.data.curtex]);
+					}
+
+					if(visible){
+						swpRender(vao, window, &state);
+					}
+				}else{
+					state.elapseTransition += 0.03f;
+
+					if(visible){
+						swpRender(vao, window, &state);
+					}
 				}
 
 				break;
