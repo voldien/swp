@@ -67,8 +67,7 @@ int main(int argc, char** argv){
 	SDL_GLContext* context = NULL;	/*	*/
 	int glatt;						/*	Tmp value.	*/
 
-
-	/*	opengl display buffer.	*/
+	/*	OpenGL display buffer.	*/
 	GLuint vao;	/*	*/
 	GLuint vbo;	/*	*/
 

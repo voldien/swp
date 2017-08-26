@@ -46,7 +46,6 @@
 	#include <GL/glext.h>
 #endif
 
-
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
 "#if __VERSION__ > 130\n"
@@ -433,6 +432,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	strcore = ( value == SDL_GL_CONTEXT_PROFILE_CORE ) ? "core" : "";
 
 	/*	Create version string.	*/
+	memset(glversion, 0, sizeof(glversion));
 	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), strcore);	/*	TODO evalute.*/
 	vsources[0] = glversion;
 	fsources[0] = glversion;
@@ -741,6 +741,7 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	const unsigned int size = desc->size;
 
 	PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
+	PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
 	PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
 	PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
 
@@ -765,11 +766,12 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		/*	Get function address.	*/
 		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
 		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+		glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
 		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
 	#if defined(GLES2) || defined(GLES3)
-		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_COPY_ARB);
+		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_DRAW_ARB);
 	#else
 
 		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, size, NULL, GL_STREAM_DRAW_ARB);
