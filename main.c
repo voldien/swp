@@ -294,6 +294,8 @@ int main(int argc, char** argv){
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
 
+	/*	State.	*/
+	state.timeout = INT32_MAX;
 
 	/*	Initialize rendering data.	*/
 	state.data.numtexs = SWP_NUM_TEXTURES;
