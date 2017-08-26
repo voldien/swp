@@ -85,7 +85,27 @@ const char* gc_fragment = ""
 "	#endif\n"
 "}\n";
 
-
+const char* gc_fade_transition_fragment = ""
+"#if __VERSION__ > 130\n"
+"layout(location = 0) out vec4 fragColor;\n"
+"#elif __VERSION__ == 130\n"
+"out vec4 fragColor;\n"
+"#endif\n"
+"uniform sampler2D tex0;\n"
+"uniform sampler2D tex1;\n"
+"uniform float normalizedur;\n"
+"#if __VERSION__ > 120\n"
+"smooth in vec2 uv;\n"
+"#else\n"
+"varying vec2 uv;\n"
+"#endif\n"
+"void main(void){\n"
+"	#if __VERSION__ > 120\n"
+"	fragColor = mix(texture2D(tex1, uv), texture2D(tex0, uv), normalizedur);\n"
+"	#else\n"
+"	gl_FragColor = mix(texture2D(tex1, uv), texture2D(tex0, uv), normalizedur);\n"
+"	#endif\n"
+"}\n";
 
 /*	Display quad.	*/
 const float gc_quad[4][3] = {
