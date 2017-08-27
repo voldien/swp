@@ -432,7 +432,6 @@ int main(int argc, char** argv){
 						state.inTransition = 1;
 
 						/*	*/
-						printf("%d.\n", (state.data.curtex - 2) % state.data.numtexs);
 						state.fromTexIndex = state.data.texs[((state.data.curtex - 2) + SWP_NUM_TEXTURES) % state.data.numtexs];
 						state.toTexIndex = state.data.texs[((state.data.curtex - 1) + SWP_NUM_TEXTURES) % state.data.numtexs];
 
