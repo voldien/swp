@@ -4,7 +4,7 @@
 MAJOR := 0
 MINOR := 9
 PATCH := 0
-STATE := a
+STATE := b
 VERSION := $(MAJOR).$(MINOR)$(STATE)$(PATCH)
 # Utilitys
 RM := rm -f
