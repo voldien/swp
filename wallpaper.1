@@ -1,0 +1,102 @@
+'\" swp command manual
+.\" Copyright (c) 2017, valdemar lindberg
+.\"
+.\" %%%LICENSE_START(GPLv3+_DOC_FULL)
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 3 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, see
+.\" <http://www.gnu.org/licenses/>.
+.\" %%%LICENSE_END
+
+.pc
+.TH swp 1 "29 August 2017" "0.9b0" "User Commands"
+.SH NAME
+swp - Simple wallpaper program.
+
+.SH SYNOPSIS
+.B swp [ -v ]
+
+.SH DESCRIPTION
+.B swp
+is a simple lightweight wallpaper program for displaying images. It has several functions for writting displaying images. These images can be loaded in startup or during runetime with FIFO file.
+
+
+.SH OPTIONS
+
+.SH 1. COMMAND-LINE Options
+.TP
+.BR \-v ", " \-\-version
+Print the version of the command and exit.
+.TP
+.BR \-V ", " \-\-verbose
+Set program verbosiy to verbose. This will make the program display information of what is happening throughout the lifetime of the program.
+.TP
+.BR \-d ", " \-\-debug
+This will enable the debug functionally of OpenGL. Where it will print OpenGL error and warning throughout the lifetime of the program.
+.TP
+.BR \-w ", " \-\-wallpaper
+Set the program to renderer ontop the desktop wallpaper. (Not supported)
+.TP
+.BR \-F ", " \-\-fullscreen
+Sets the program to start up in fullscreen mode.
+.TP
+.BR \-b ", " \-\-borderless
+This will the program create a window without its border.
+.TP
+.BR \-p ", " \-\-fifo =\fIPATH\fR
+This override the default fifo filepath. Where the fifo is used for transfering image data to the program used for displaying.
+.TP
+.BR \-R ", " \-\-resolution =\fIRESOLUTION\fR
+Sets the resolution of the program at startup.
+.TP
+.BR \-P ", " \-\-position
+Sets the position of the window at startup.
+.TP
+.BR \-s ", " \-\-shader
+File path for loading transition shader.
+.TP
+.BR \-f ", " \-\-file =\fIPATH\fR
+File path for loading image from file to be displayed at startup.
+.TP
+.BR \-B ", " \-\-filter =\fIPATH\fR
+File path for fragment shader used for overriding the default filter used rendering the images. (Not supported yet)
+
+.SH EXIT STATUS
+If exist status is equal 0 than the program was exited successfully.
+
+.SH EXAMPLES
+The program can be easilly used as followed.
+.TP
+.BR swp  " " --file=\fIFILEPATH\fR
+.TP
+This will create a swp program and display the image from \fIFILEPATH\fR. Where the displayed image can be replaced with a new one by the following command.
+.TP
+.BR cat " " \fIFILEPATH\fR " " > " " /tmp/wallfifo0
+.TP
+Where the \f/tmp/wallfifo0\fR is the default FIFO filepath.
+
+.SH NOTES
+The source for the program can be found at https://github.com/voldien/swp/.
+
+.SH "SEE ALSO"
+\&\fIfifo\fR\|(7), \fIselect\fR\|(2).
+
+.SH BUGS
+No known bugs.
+
+.SH AUTHOR
+	Valdemar Lindberg (voldiekami@gmail.com)
