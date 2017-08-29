@@ -51,6 +51,7 @@ int main(int argc, char** argv){
 	int fd = 0;							/*	*/
 	int pipe = 0;						/*	*/
 	int fdfifo = 0;						/*	*/
+	int64_t before;
 
 	/*	*/
 	int numtranspaths = 0;
@@ -443,6 +444,9 @@ int main(int argc, char** argv){
 						glActiveTexture(GL_TEXTURE1);
 						glBindTexture(GL_TEXTURE_2D, state.fromTexIndex);
 
+						/*	Init timer.	*/
+						before = SDL_GetPerformanceCounter();
+
 					}else{
 						/*	*/
 						glActiveTexture(GL_TEXTURE0);
@@ -453,8 +457,7 @@ int main(int argc, char** argv){
 						swpRender(vao, window, &state);
 					}
 				}else{
-					state.elapseTransition += 0.03f;
-
+					state.elapseTransition += (float)(SDL_GetPerformanceCounter() - (float)before) / (float)SDL_GetPerformanceFrequency();
 					if(visible){
 						swpRender(vao, window, &state);
 					}

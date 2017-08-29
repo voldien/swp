@@ -490,7 +490,8 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	return prog;
 }
 
-void swpLoadTransitionShaders(swpRenderingState* __restrict__ state, unsigned int count, const char** __restrict__ sources){
+void swpLoadTransitionShaders(swpRenderingState* __restrict__ state,
+		unsigned int count, const char** __restrict__ filepaths) {
 
 	int x;
 
@@ -499,13 +500,13 @@ void swpLoadTransitionShaders(swpRenderingState* __restrict__ state, unsigned in
 	/*	Iterate through each shader.	*/
 	for(x = 0; x < count; x++){
 		void* fragdata = NULL;
-		const char* fsource = sources[x];
+		const char* fsource = filepaths[x];
 
-		/*	*/
+		/*	Get new shader object index.	*/
 		const int index = state->data.numshaders;
 		swpTransitionShader* trans;
 
-		/*	*/
+		/*	Allocate shader object.	*/
 		state->data.numshaders++;
 		state->data.shaders = realloc(state->data.shaders, state->data.numshaders * sizeof(swpTransitionShader));
 		assert(state->data.shaders);
@@ -516,26 +517,33 @@ void swpLoadTransitionShaders(swpRenderingState* __restrict__ state, unsigned in
 		if( swpLoadFile(fsource, &fragdata) > 0){
 			swpCreateTransitionShaders(trans, fragdata);
 		}
-
 	}
 }
 
-void swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans, const char* __restrict__ source){
+int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
+		const char* __restrict__ source) {
 
+	/*	Create shader and check if successfully.	*/
 	trans->prog = swpCreateShader(gc_vertex, source);
+	if(trans->prog < 0)
+		return 0;
+
+	/*	Default elapse time for transition shader.	*/
 	trans->elapse = 1.120f;
 
-	/*	*/
+	/*	Cache uniform variable memory index.	*/
 	trans->normalizedurloc = glGetUniformLocation(trans->prog, "normalizedur");
 	trans->texloc0 = glGetUniformLocation(trans->prog, "tex0");
 	trans->texloc1 = glGetUniformLocation(trans->prog, "tex1");
 
-	/*	*/
+	/*	Assign default transition shader values.	*/
 	glUseProgram(trans->prog);
 	glUniform1i(trans->texloc0, 0);
 	glUniform1i(trans->texloc1, 1);
 	glUniform1f(trans->normalizedurloc, 0.0f);
 
+	/*	Success.	*/
+	return 1;
 }
 
 

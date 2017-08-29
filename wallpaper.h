@@ -169,18 +169,28 @@ extern unsigned int swpCheckExtensionSupported(const char* extension);
 extern GLuint swpCreateShader(const char* vshader, const char* fshader);
 
 /**
- *	Load transition shaders.
+ *	Load transition shaders from file paths.
+ *	It will create transition shader for each
+ *	shader source with the swpCreateTransitionShaders
+ *	function.
+ *
+ *	\state Rendering state object.
+ *
+ *	\count number of sources in sources pointer array.
+ *
+ *	\filepaths array of file paths.
  *
  */
 extern void swpLoadTransitionShaders(swpRenderingState* __restrict__ state,
-		unsigned int count, const char** __restrict__ sources);
+		unsigned int count, const char** __restrict__ filepaths);
 
 /**
  *	Create transition shader and get uniform
  *	located associated and cache it.
  *
+ *	@Return non-zero if successfully.
  */
-extern void swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
+extern int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 		const char* __restrict__ source);
 
 /**
