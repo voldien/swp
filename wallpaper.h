@@ -48,6 +48,10 @@ extern int g_support_pbo;               /*	Pixel buffer object for fast image tr
 
 #define SWP_NUM_TEXTURES 3
 
+/**
+ *	Transition shader and associated
+ *	information.
+ */
 typedef struct swp_transition_shader_t{
 	GLuint prog;                /*	Shader program unique ID.	*/
 	float elapse;               /*	How time the shader will run.	*/
@@ -57,7 +61,7 @@ typedef struct swp_transition_shader_t{
 }swpTransitionShader;
 
 /**
- *
+ *	Rendering state data block.
  */
 typedef struct swp_rendering_s_t{
 	GLuint vao;                     /*	Vertex array object. Used for higher version of OpenGL.	*/
@@ -78,7 +82,7 @@ typedef struct swp_rendering_s_t{
 }swpRenderingData;
 
 /**
- *
+ *	Rendering state of the program.
  */
 typedef struct swp_rendering_state_t{
 	unsigned int inTransition;      /*	*/
@@ -90,7 +94,11 @@ typedef struct swp_rendering_state_t{
 }swpRenderingState;
 
 /**
- *
+ *	Texture description used for passing the
+ *	data fetched from the FIFO thread to the main thread
+ *	for which the OpenGL context resides in order to use
+ *	the PBO feature for using DMA (Direct memory access)
+ *	for passing the image faster.
  */
 typedef struct swp_texture_desc_t{
 	unsigned int width;     /*	Texture width.	*/
@@ -105,7 +113,9 @@ typedef struct swp_texture_desc_t{
 
 
 /**
- *	Verbose stdout print.
+ *	Verbose stdout print. Using the
+ *	the same format for which the printf
+ *	function uses.
  *
  *	@Return Number of bytes written.
  */
@@ -117,7 +127,7 @@ extern int swpVerbosePrintf(const char* format,...);
  */
 extern const char* swpGetVersion(void);
 
-/*
+/**
  *	Enable debugging.
  */
 extern void swpEnableDebug(void);
@@ -129,13 +139,16 @@ extern void swpEnableDebug(void);
 extern void swpParseResolutionArgument(const char* arg, int* res);
 
 /**
- *
+ *	Load file from file system.
  *	@Return number of bytes that was loaded from file.
  */
 extern long int swpLoadFile(const char* __restrict__ cfilename,
 		void** __restrict__ data);
 
 /**
+ *	Load string from file. The function uses
+ *	swpLoadFile and concatenate null terminated character
+ *	at the end of the memory block.
  *
  *	@Return number of bytes that was loaded from file.
  */
@@ -148,7 +161,10 @@ extern long int swpLoadString(const char* __restrict__ cfilename,
 extern void swpGenerateQuad(GLuint* vao, GLuint* vbo);
 
 /**
- *	Get GLSL version in decimal.
+ *	Get GLSL version in decimal. Used
+ *	for creating glsl version declaration
+ *	for the current GLSL version of the bounded
+ *	context bounding.
  */
 extern unsigned int swpGetGLSLVersion(void);
 
@@ -161,7 +177,12 @@ extern unsigned int swpGetGLSLVersion(void);
 extern unsigned int swpCheckExtensionSupported(const char* extension);
 
 /**
- *	create Shader.
+ *	create shader from vertex and fragment shader.
+ *	The shader source code cannot declare version for
+ *	which the glsl code. Because the program will insert
+ *	the current version. Instead use the macro feature
+ *	in glsl and the __VERSION__ macro variable for
+ *	which feature to use in the shader.
  *
  *	@Return non-negative if successfully.
  */
@@ -208,20 +229,33 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc);
 
 
 /**
- *	Load texture.
+ *	Load texture from texture description to
+ *	OpenGL texture object with help of PBO
+ *	(Pixel buffer object) which will increase the
+ *	transfer speed between RAM to VRAM.
  *
- *	@Return
+ *	\tex OpenGL texture unique identifier.
+ *
+ *	\pbo Pixel buffer object unique identifier.
+ *
+ *	\desc Descriptor object with all the required information
+ *	about the texture in memory.
+ *
+ *	@Return non-zero if successfully.
  */
 extern int swpLoadTextureFromMem(GLuint* __restrict__ tex, GLuint pbo,
 		const swpTextureDesc* __restrict__ desc);
 
 /**
- *	Set window as wallpaper.
+ *	Set window as wallpaper. (Not supported yet)
+ *	This will make the program renderer
+ *	over the desktop window.
  */
 extern void swpSetWallpaper(SDL_Window* window);
 
 /**
- *	Set window fullscreen. The screen size will not be altered.
+ *	Set window in fullscreen mode.
+ *	The monitor screen size will not be altered.
  */
 extern void swpSetFullscreen(SDL_Window* window, Uint32 fullscreen);
 
@@ -240,6 +274,9 @@ extern void swpCatchSignal(int sig);
 
 /**
  *	Render display.
+ *
+ *	\state will decided for the function
+ *	for what should be rendered.
  */
 void swpRender(GLuint vao, SDL_Window* __restrict__ window,
         swpRenderingState* __restrict__ state);
