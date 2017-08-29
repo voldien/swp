@@ -32,76 +32,75 @@ extern const float gc_quad[4][3];		/*	Display quad vertices.	*/
 
 
 /*	Global.	*/
-extern int g_alive;						/*	Determine if application should continue be alive or not.*/
-extern unsigned int g_compression;		/*	Use compression.	*/
-extern unsigned int g_wallpaper;		/*	Wallpaper mode.	*/
-extern unsigned int g_fullscreen;		/*	Fullscreen mode.	*/
-extern unsigned int g_borderless;		/*	Borderless mode.	*/
-extern char* g_fifopath;				/*	Default FIFO filepath.	*/
-extern unsigned int g_verbose;			/*	Verbose mode.	*/
-extern unsigned int g_debug;			/*	*/
-extern FILE* g_verbosefd;				/*	Verbose file descriptor.	*/
-extern int g_winres[2];					/*	Window resolution.	*/
-extern int g_winpos[2];					/*	Window position.	*/
-extern int g_maxtexsize;				/*	OpenGL max texture size, (Check texture proxy later)*/
-extern int g_support_pbo;				/*	Pixel buffer object for fast image transfer.	*/
+extern int g_alive;                     /*	Determine if application should continue be alive or not.*/
+extern unsigned int g_compression;      /*	Use compression.	*/
+extern unsigned int g_wallpaper;        /*	Wallpaper mode.	*/
+extern unsigned int g_fullscreen;       /*	Fullscreen mode.	*/
+extern unsigned int g_borderless;       /*	Borderless mode.	*/
+extern char* g_fifopath;                /*	Default FIFO filepath.	*/
+extern unsigned int g_verbose;          /*	Verbose mode.	*/
+extern unsigned int g_debug;            /*	*/
+extern FILE* g_verbosefd;               /*	Verbose file descriptor.	*/
+extern int g_winres[2];                 /*	Window resolution.	*/
+extern int g_winpos[2];                 /*	Window position.	*/
+extern int g_maxtexsize;                /*	OpenGL max texture size, (Check texture proxy later)*/
+extern int g_support_pbo;               /*	Pixel buffer object for fast image transfer.	*/
 
 #define SWP_NUM_TEXTURES 3
 
 typedef struct swp_transition_shader_t{
-	GLuint prog;				/*	Shader program unique ID.	*/
-	float elapse;				/*	How time the shader will run.	*/
-	GLint normalizedurloc;		/*						*/
-	GLint texloc0;				/*	Texture location.	*/
-	GLint texloc1;				/*	Texture location.	*/
+	GLuint prog;                /*	Shader program unique ID.	*/
+	float elapse;               /*	How time the shader will run.	*/
+	GLint normalizedurloc;      /*						*/
+	GLint texloc0;              /*	Texture location.	*/
+	GLint texloc1;              /*	Texture location.	*/
 }swpTransitionShader;
 
 /**
  *
  */
 typedef struct swp_rendering_s_t{
-	GLuint vao;						/*	Vertex array object. Used for higher version of OpenGL.	*/
-	GLuint vbo;						/*	Vertex buffer object.	*/
-	GLint prog;						/*	Shader program.	*/
+	GLuint vao;                     /*	Vertex array object. Used for higher version of OpenGL.	*/
+	GLuint vbo;                     /*	Vertex buffer object.	*/
+	GLint prog;                     /*	Shader program.	*/
 
-
-	unsigned int numshaders;		/*	*/
-	swpTransitionShader* shaders;	/*	*/
+	unsigned int numshaders;        /*	*/
+	swpTransitionShader* shaders;   /*	*/
 	swpTransitionShader* displayshader;
 
-	GLint numtexs;					/*	Number of textures in buffer.	*/
-	GLuint texs[SWP_NUM_TEXTURES];	/*	texture*/
-	GLint curtex;					/*	Current texture displayed.	*/
-	GLuint pbo[SWP_NUM_TEXTURES];	/*	Pixel buffer object.*/
+	GLint numtexs;                  /*	Number of textures in buffer.	*/
+	GLuint texs[SWP_NUM_TEXTURES];  /*	texture*/
+	GLint curtex;                   /*	Current texture displayed.	*/
+	GLuint pbo[SWP_NUM_TEXTURES];   /*	Pixel buffer object.*/
 
-	GLint texloc;					/*	*/
-	GLint loc;						/*	*/
+	GLint texloc;                   /*	*/
+	GLint loc;                      /*	*/
 }swpRenderingData;
 
 /**
  *
  */
 typedef struct swp_rendering_state_t{
-	unsigned int inTransition;			/*	*/
-	unsigned int fromTexIndex;			/*	*/
-	unsigned int toTexIndex;			/*	*/
-	float elapseTransition;				/*	*/
-	swpRenderingData data;				/*	*/
-	unsigned int timeout;
+	unsigned int inTransition;      /*	*/
+	unsigned int fromTexIndex;      /*	*/
+	unsigned int toTexIndex;        /*	*/
+	float elapseTransition;         /*	*/
+	swpRenderingData data;          /*	*/
+	unsigned int timeout;           /*	*/
 }swpRenderingState;
 
 /**
  *
  */
 typedef struct swp_texture_desc_t{
-	unsigned int width;		/*	Texture width.	*/
-	unsigned int height;	/*	Texture height.	*/
-	unsigned int bpp;		/*	Texture Bpp(Byte per pixel).		*/
-	unsigned int size;		/*	Size in bytes.	*/
-	GLuint intfor;			/*	Texture internal format.	*/
-	GLuint format;			/*	Texture input format.*/
-	GLuint imgdatatype;		/*	Texture input data type.	*/
-	void* pixel;			/*	Remark : free it.	*/
+	unsigned int width;     /*	Texture width.	*/
+	unsigned int height;    /*	Texture height.	*/
+	unsigned int bpp;       /*	Texture Bpp(Byte per pixel).		*/
+	unsigned int size;      /*	Size in bytes.	*/
+	GLuint intfor;          /*	Texture internal format.	*/
+	GLuint format;          /*	Texture input format.*/
+	GLuint imgdatatype;     /*	Texture input data type.	*/
+	void* pixel;            /*	Remark : free it.	*/
 }swpTextureDesc;
 
 
