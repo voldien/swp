@@ -444,20 +444,25 @@ int main(int argc, char** argv){
 						glActiveTexture(GL_TEXTURE1);
 						glBindTexture(GL_TEXTURE_2D, state.fromTexIndex);
 
-						/*	Init timer.	*/
+						/*	Init timer for transition shader.	*/
 						before = SDL_GetPerformanceCounter();
 
 					}else{
+
 						/*	*/
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, state.data.texs[state.data.curtex]);
 					}
 
+					/*	Update window.	*/
 					if(visible){
 						swpRender(vao, window, &state);
 					}
 				}else{
+					/*	Update the elapse transition time in seconds.	*/
 					state.elapseTransition += (float)(SDL_GetPerformanceCounter() - (float)before) / (float)SDL_GetPerformanceFrequency();
+
+					/*	Update window.	*/
 					if(visible){
 						swpRender(vao, window, &state);
 					}
@@ -500,11 +505,12 @@ int main(int argc, char** argv){
 		SDL_GL_DeleteContext(context);
 	}
 
+	/*	Destroy image.	*/
 	if(window != NULL){
 		SDL_DestroyWindow(window);
 	}
 
-	/**/
+	/*	Release FreeImage and SDL library resources.*/
 	FreeImage_DeInitialise();
 	SDL_Quit();
 
