@@ -1,0 +1,35 @@
+# bash completion for sisy(1)
+
+_swp(){
+
+	local cur prev opts
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+	opts="
+	--version
+	--verbose
+	--debug
+	--wallpaper
+	--fullscreen
+	--borderless
+	--fifo=
+	--resolution=
+	--position=
+	--shader=
+	--file=
+	--filter="
+
+	# Default generate compare of all available option.
+	COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+
+	# If there's only one option, without =, then allow a space
+	if [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != "--"*"=" ]] ; then
+		compopt +o nospace
+	fi
+
+	return 0
+}
+
+complete -o nospace -F _swp swp
