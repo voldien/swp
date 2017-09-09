@@ -39,12 +39,11 @@ debug : $(OBJS)
 %.o : %.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-
 install : $(TARGET)
 	@echo -n "Installing wallpaper.\n"
 	$(MKDIR) $(INSTALL_LOCATION)/bin
 	$(CP) $(TARGET) $(INSTALL_LOCATION)/bin
-
+	$(CP) swp.bc $(INSTALL_LOCATION)/share/bash-completion/completions/swp
 
 distribution :
 	$(RM) -r $(TARGET)-$(VERSION)
