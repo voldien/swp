@@ -68,6 +68,8 @@ int main(int argc, char** argv){
 	SDL_GLContext* context = NULL;	/*	*/
 	int glatt;						/*	Tmp value.	*/
 
+	const char* ctitle = "wallpaper";
+
 	/*	OpenGL display buffer.	*/
 	GLuint vao;	/*	*/
 	GLuint vbo;	/*	*/
@@ -91,6 +93,7 @@ int main(int argc, char** argv){
 		{"socket",      required_argument,	NULL, 'S'},	/*	Listen on socket.	*/
 		{"file",        required_argument,	NULL, 'f'},	/*	File to load picture from.	*/
 		{"filter",      required_argument,	NULL, 'B'},	/*	Filter.	*/
+		{"title",	required_argument,	NULL, 'T'},	/*	Override the title.	*/
 
 		{"row",         required_argument, 	NULL, 'r'},
 		{"column",      required_argument, 	NULL, 'c'},
@@ -151,6 +154,11 @@ int main(int argc, char** argv){
 		case 'f':
 			if(optarg){
 				fd = open(optarg, O_RDONLY | O_NONBLOCK);
+			}
+			break;
+		case 'T':
+			if(optarg){
+				ctitle = optarg;
 			}
 			break;
 		default:
@@ -214,7 +222,7 @@ int main(int argc, char** argv){
 	}
 
 	/*	Create window.	*/
-	window = SDL_CreateWindow("wallpaper",
+	window = SDL_CreateWindow(ctitle,
 			g_winpos[0], g_winpos[1],
 			g_winres[0], g_winres[1],
 			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
