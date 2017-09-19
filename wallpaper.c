@@ -264,20 +264,14 @@ void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
 }
 
 void swpEnableDebug(void){
-    glDebugMessageCallback __glDebugMessageCallback;
     glDebugMessageCallback __glDebugMessageCallbackARB;
     glDebugMessageCallback __glDebugMessageCallbackAMD;
 
     /*	Load function pointer by their symbol name.	*/
-    __glDebugMessageCallback = (glDebugMessageCallback)SDL_GL_GetProcAddress("glDebugMessageCallback");
     __glDebugMessageCallbackARB  = (glDebugMessageCallback)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
     __glDebugMessageCallbackAMD  = (glDebugMessageCallback)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
 
-
     /*	Set Debug message callback.	*/
-    if(__glDebugMessageCallback){
-        __glDebugMessageCallback(callback_debug_gl, NULL);
-    }
     if(__glDebugMessageCallbackARB){
         __glDebugMessageCallbackARB(callback_debug_gl, NULL);
     }
@@ -355,12 +349,12 @@ void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 	glGenVertexArrays(1, vao);
 	glBindVertexArray(*vao);
 
-	glGenBuffers(1, vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(gc_quad), gc_quad, GL_STATIC_DRAW);
+	glGenBuffersARB(1, vbo);
+	glBindBufferARB(GL_ARRAY_BUFFER, *vbo);
+	glBufferDataARB(GL_ARRAY_BUFFER, sizeof(gc_quad), gc_quad, GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, NULL);
+	glEnableVertexAttribArrayARB(0);
+	glVertexAttribPointerARB(0, 3, GL_FLOAT, GL_FALSE, 12, NULL);
 
 	glBindVertexArray(0);
 }
@@ -406,7 +400,7 @@ unsigned int swpCheckExtensionSupported(const char* extension){
 			}
 		}
 	}else
-		return strstr(glGetString(GL_EXTENSIONS), extension) != NULL;
+		return (strstr(glGetString(GL_EXTENSIONS), extension) != NULL);
 
 	return 0;
 }
@@ -442,26 +436,26 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 
 	if(vshader != NULL){
 		vsources[1] = vshader;
-		vs = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vs, 2, vsources, NULL);
-		glCompileShader(vs);
+		vs = glCreateShader(GL_VERTEX_SHADER_ARB);
+		glShaderSourceARB(vs, 2, vsources, NULL);
+		glCompileShaderARB(vs);
 		glAttachShader(prog, vs);
 	}
 	if(fshader != NULL){
 		fsources[1] = fshader;
-		fs = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fs, 2, fsources, NULL);
-		glCompileShader(fs);
+		fs = glCreateShader(GL_FRAGMENT_SHADER_ARB);
+		glShaderSourceARB(fs, 2, fsources, NULL);
+		glCompileShaderARB(fs);
 		glAttachShader(prog, fs);
 	}
 
 	/*	Link shader.	*/
-	glLinkProgram(prog);
-	glValidateProgram(prog);
+	glLinkProgramARB(prog);
+	glValidateProgramARB(prog);
 
 	/*	Check status of linking and validate.	*/
-	glGetProgramiv(prog, GL_LINK_STATUS, &lstatus);
-	glGetProgramiv(prog, GL_VALIDATE_STATUS, &vstatus);
+	glGetProgramivARB(prog, GL_LINK_STATUS, &lstatus);
+	glGetProgramivARB(prog, GL_VALIDATE_STATUS, &vstatus);
 
 
 	/*	Check if link successfully.	*/
@@ -478,7 +472,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	}
 
 
-	glBindAttribLocation(prog, 0,  "vertex");
+	glBindAttribLocationARB(prog, 0,  "vertex");
 	glBindFragDataLocation(prog, 0, "fragColor");
 
 	/*	Detach shaderer object and release their resources.	*/
@@ -532,15 +526,15 @@ int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 	trans->elapse = 1.120f;
 
 	/*	Cache uniform variable memory index.	*/
-	trans->normalizedurloc = glGetUniformLocation(trans->prog, "normalizedur");
-	trans->texloc0 = glGetUniformLocation(trans->prog, "tex0");
-	trans->texloc1 = glGetUniformLocation(trans->prog, "tex1");
+	trans->normalizedurloc = glGetUniformLocationARB(trans->prog, "normalizedur");
+	trans->texloc0 = glGetUniformLocationARB(trans->prog, "tex0");
+	trans->texloc1 = glGetUniformLocationARB(trans->prog, "tex1");
 
 	/*	Assign default transition shader values.	*/
 	glUseProgram(trans->prog);
-	glUniform1i(trans->texloc0, 0);
-	glUniform1i(trans->texloc1, 1);
-	glUniform1f(trans->normalizedurloc, 0.0f);
+	glUniform1iARB(trans->texloc0, 0);
+	glUniform1iARB(trans->texloc1, 1);
+	glUniform1fARB(trans->normalizedurloc, 0.0f);
 
 	/*	Success.	*/
 	return 1;
@@ -1004,7 +998,7 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 
 		/*	Update normalize elapse time.	*/
 		normalelapse = (state->elapseTransition / state->data.shaders[glprindex].elapse);
-		glUniform1fv(trashader->normalizedurloc, 1, &normalelapse);
+		glUniform1fvARB(trashader->normalizedurloc, 1, &normalelapse);
 
 		/*	Check if transition has ended.	*/
 		if(state->elapseTransition > state->data.shaders[glprindex].elapse){

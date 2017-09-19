@@ -494,8 +494,8 @@ int main(int argc, char** argv){
 		if(glIsVertexArray(vao) == GL_TRUE){
 			glDeleteVertexArrays(1, &vao);
 		}
-		if(glIsBuffer(vbo) == GL_TRUE){
-			glDeleteBuffers(1, &vbo);
+		if(glIsBufferARB(vbo) == GL_TRUE){
+			glDeleteBuffersARB(1, &vbo);
 		}
 
 		for(i = 0; i < state.data.numtexs; i++){
@@ -503,8 +503,8 @@ int main(int argc, char** argv){
 				glDeleteTextures(1, &state.data.texs[i]);
 			}
 
-			if(glIsBuffer(state.data.pbo[i]) == GL_TRUE){
-				glDeleteBuffers(1, &state.data.pbo[i]);
+			if(glIsBufferARB(state.data.pbo[i]) == GL_TRUE){
+				glDeleteBuffersARB(1, &state.data.pbo[i]);
 			}
 		}
 
