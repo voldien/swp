@@ -100,7 +100,7 @@ const char* gc_fade_transition_fragment = ""
 "#endif\n"
 "void main(void){\n"
 "	#if __VERSION__ > 120\n"
-"	fragColor = mix(texture2D(tex1, uv), texture2D(tex0, uv), normalizedur);\n"
+"	fragColor = mix(texture(tex1, uv), texture(tex0, uv), normalizedur);\n"
 "	#else\n"
 "	gl_FragColor = mix(texture2D(tex1, uv), texture2D(tex0, uv), normalizedur);\n"
 "	#endif\n"
@@ -422,8 +422,8 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	swpVerbosePrintf("Loading shader program.\n");
 
 	/*	Check if core.	*/
-	glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &value);
-	strcore = ( value == SDL_GL_CONTEXT_PROFILE_CORE ) ? "core" : "";
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &value);
+	strcore = ( value & SDL_GL_CONTEXT_PROFILE_CORE != 0 ) ? "core" : "";
 
 	/*	Create version string.	*/
 	memset(glversion, 0, sizeof(glversion));
@@ -450,13 +450,12 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	}
 
 	/*	Link shader.	*/
-	glLinkProgramARB(prog);
-	glValidateProgramARB(prog);
+	glLinkProgram(prog);
+	glValidateProgram(prog);
 
 	/*	Check status of linking and validate.	*/
-	glGetProgramivARB(prog, GL_LINK_STATUS, &lstatus);
-	glGetProgramivARB(prog, GL_VALIDATE_STATUS, &vstatus);
-
+	glGetProgramiv(prog, GL_LINK_STATUS, &lstatus);
+	glGetProgramiv(prog, GL_VALIDATE_STATUS, &vstatus);
 
 	/*	Check if link successfully.	*/
 	if(lstatus == GL_FALSE){
@@ -470,7 +469,6 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 		glGetProgramInfoLog(prog, sizeof(info), NULL, &info[0]);
 		fprintf(stderr, "%s\n", info);
 	}
-
 
 	glBindAttribLocationARB(prog, 0,  "vertex");
 	glBindFragDataLocation(prog, 0, "fragColor");

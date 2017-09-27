@@ -243,8 +243,10 @@ int main(int argc, char** argv){
 	}
 
 	/*	Create OpenGL Context.	*/
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &glatt) | (g_debug ? SDL_GL_CONTEXT_DEBUG_FLAG : 0) );
+	if(g_debug){
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &glatt) | SDL_GL_CONTEXT_DEBUG_FLAG);
+	}
+
 	context = SDL_GL_CreateContext(window);
 	if(context == NULL){
 		fprintf(stderr, "Failed create OpenGL core context, %s.\n", SDL_GetError());
@@ -316,7 +318,7 @@ int main(int argc, char** argv){
 	state.data.displayshader = &state.data.shaders[0];
 	state.data.displayshader->prog = swpCreateShader(gc_vertex, gc_fragment);
 	state.data.displayshader->elapse = 0;
-	state.data.displayshader->texloc0 = glGetUniformLocation(state.data.displayshader->prog, "tex0");
+	state.data.displayshader->texloc0 = glGetUniformLocationARB(state.data.displayshader->prog, "tex0");
 	glUseProgram(state.data.displayshader->prog);
 	glUniform1i(state.data.displayshader->texloc0, 0);
 
