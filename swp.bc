@@ -1,4 +1,4 @@
-# bash completion for sisy(1)
+# bash completion for swp(1)
 
 _swp(){
 
