@@ -242,11 +242,12 @@ int main(int argc, char** argv){
 		swpSetFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
 
-	/*	Create OpenGL Context.	*/
+	/*	Check if debug is enabled.	*/
 	if(g_debug){
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &glatt) | SDL_GL_CONTEXT_DEBUG_FLAG);
 	}
 
+	/*	Create OpenGL Context.	*/
 	context = SDL_GL_CreateContext(window);
 	if(context == NULL){
 		fprintf(stderr, "Failed create OpenGL core context, %s.\n", SDL_GetError());
