@@ -131,16 +131,6 @@ int g_maxtexsize;
 int g_support_pbo = 0;
 
 
-typedef void (APIENTRY *DEBUGPROC)(GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar *message,
-		void *userParam);
-typedef void(*glDebugMessageCallback)(DEBUGPROC, void*);
-
-
 int swpVerbosePrintf(const char* format,...){
 
 	int status = -1;
@@ -264,24 +254,30 @@ void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
 }
 
 void swpEnableDebug(void){
-    glDebugMessageCallback __glDebugMessageCallbackARB;
-    glDebugMessageCallback __glDebugMessageCallbackAMD;
+
+	PFNGLDEBUGMESSAGECALLBACKARBPROC __glDebugMessageCallbackARB;
+	PFNGLDEBUGMESSAGECALLBACKAMDPROC __glDebugMessageCallbackAMD;
 
     /*	Load function pointer by their symbol name.	*/
-    __glDebugMessageCallbackARB  = (glDebugMessageCallback)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
-    __glDebugMessageCallbackAMD  = (glDebugMessageCallback)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
+    __glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
+    __glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
 
-    /*	Set Debug message callback.	*/
-    if(__glDebugMessageCallbackARB){
-        __glDebugMessageCallbackARB(callback_debug_gl, NULL);
-    }
-    if(__glDebugMessageCallbackAMD){
-        __glDebugMessageCallbackAMD(callback_debug_gl, NULL);
-    }
+	/*	*/
+	if (!__glDebugMessageCallbackAMD && !__glDebugMessageCallbackARB) {
+		fprintf(stderr, "Failed loading OpenGL Message callback enable functions.\n");
+	}
 
-    /*	*/
+	/*	Set Debug message callback.	*/
+	if (__glDebugMessageCallbackARB) {
+		__glDebugMessageCallbackARB(callback_debug_gl, NULL);
+	}
+	if (__glDebugMessageCallbackAMD) {
+		__glDebugMessageCallbackAMD(callback_debug_gl, NULL);
+	}
+
+    /*	Enable debug.	*/
     glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 }
 
 
