@@ -379,7 +379,7 @@ int main(int argc, char** argv){
 				swpVerbosePrintf("Requested to quit.");
 				goto error;
 				break;
-			case SDL_KEYDOWN:
+			case SDL_KEYUP:
 				if(event.key.keysym.sym == SDLK_RETURN && ( event.key.keysym.mod & SDLK_LCTRL ) ){
 					swpVerbosePrintf("Set to fullscreen mode.");
 					g_fullscreen = ~g_fullscreen & 0x1;
