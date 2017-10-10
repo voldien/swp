@@ -346,8 +346,8 @@ void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 	glBindVertexArray(*vao);
 
 	glGenBuffersARB(1, vbo);
-	glBindBufferARB(GL_ARRAY_BUFFER, *vbo);
-	glBufferDataARB(GL_ARRAY_BUFFER, sizeof(gc_quad), gc_quad, GL_STATIC_DRAW);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, *vbo);
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(gc_quad), gc_quad, GL_STATIC_DRAW_ARB);
 
 	glEnableVertexAttribArrayARB(0);
 	glVertexAttribPointerARB(0, 3, GL_FLOAT, GL_FALSE, 12, NULL);
