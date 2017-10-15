@@ -817,12 +817,13 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	else
 		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)pixel);
 
+	/*	*/
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	/*	*/
 	glBindTexture(GL_TEXTURE_2D, 0);
 	if(g_support_pbo)
-		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER, 0);
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
 
 	/*	Release pixel data.	*/
 	free(desc->pixel);
