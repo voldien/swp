@@ -419,7 +419,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 
 	/*	Check if core.	*/
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &value);
-	strcore = ( value & SDL_GL_CONTEXT_PROFILE_CORE != 0 ) ? "core" : "";
+	strcore = ( (value & SDL_GL_CONTEXT_PROFILE_CORE) != 0 ) ? "core" : "";
 
 	/*	Create version string.	*/
 	memset(glversion, 0, sizeof(glversion));
