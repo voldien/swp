@@ -246,9 +246,12 @@ void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
             severityString = "Unknown";
             break;
         }
-    }/**/
+    }
+
+    /*	*/
     printf(severityString);
 
+    /*	*/
     printf(message);
     printf("\n");
 }
@@ -262,17 +265,17 @@ void swpEnableDebug(void){
     __glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
     __glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
 
-	/*	*/
+	/*	Check if function pointer exists!	*/
 	if (!__glDebugMessageCallbackAMD && !__glDebugMessageCallbackARB) {
 		fprintf(stderr, "Failed loading OpenGL Message callback enable functions.\n");
 	}
 
 	/*	Set Debug message callback.	*/
 	if (__glDebugMessageCallbackARB) {
-		__glDebugMessageCallbackARB(callback_debug_gl, NULL);
+		__glDebugMessageCallbackARB((GLDEBUGPROCARB)callback_debug_gl, NULL);
 	}
 	if (__glDebugMessageCallbackAMD) {
-		__glDebugMessageCallbackAMD(callback_debug_gl, NULL);
+		__glDebugMessageCallbackAMD((GLDEBUGPROCAMD)callback_debug_gl, NULL);
 	}
 
     /*	Enable debug.	*/
@@ -315,11 +318,14 @@ long int swpLoadFile(const char* cfilename, void** data){
 	pos = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
+	/*	*/
 	data[0] = malloc(pos);
 	assert(data[0]);
 
+	/*	*/
 	nBytes = fread(data[0], 1, pos, f );
 
+	/*	*/
 	fclose(f);
 
 	return nBytes;
@@ -391,12 +397,12 @@ unsigned int swpCheckExtensionSupported(const char* extension){
 		for(i = 0; i < k; i++){
 			const GLubyte* nextension = glGetStringi(GL_EXTENSIONS, i);
 			if(nextension){
-				if(strstr(nextension, extension))
+				if(strstr((const char*)nextension, extension))
 					return 1;
 			}
 		}
 	}else
-		return (strstr(glGetString(GL_EXTENSIONS), extension) != NULL);
+		return (strstr((const char*)glGetString(GL_EXTENSIONS), extension) != NULL);
 
 	return 0;
 }
@@ -414,7 +420,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	int value;
 	const char* strcore;
 
-
+	/*	*/
 	swpVerbosePrintf("Loading shader program.\n");
 
 	/*	Check if core.	*/
@@ -466,6 +472,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 		fprintf(stderr, "%s\n", info);
 	}
 
+	/*	Bind shader attribute for legacy shader version.	*/
 	glBindAttribLocationARB(prog, 0,  "vertex");
 	glBindFragDataLocation(prog, 0, "fragColor");
 
@@ -513,6 +520,8 @@ int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 
 	/*	Create shader and check if successfully.	*/
 	trans->prog = swpCreateShader(gc_vertex, source);
+
+	/*	Check error.	*/
 	if(trans->prog < 0)
 		return 0;
 
@@ -569,7 +578,6 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	char inbuf[4096];					/**/
 	register ssize_t len = 0;			/**/
 	register ssize_t totallen = 0;		/**/
-
 
 	/*	Free image.	*/
 	FREE_IMAGE_FORMAT imgtype;			/**/
@@ -717,9 +725,6 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	return totallen;
 }
-
-
-
 
 int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 

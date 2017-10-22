@@ -63,9 +63,9 @@ int main(int argc, char** argv){
 	/*	*/
 	SDL_Event event = {0};			/*	*/
 	SDL_Thread* thread = NULL;		/*	*/
-	swpRenderingState state = {0};	/*	*/
+	swpRenderingState state = {0};		/*	*/
 	SDL_Window* window = NULL;		/*	*/
-	SDL_GLContext* context = NULL;	/*	*/
+	SDL_GLContext* context = NULL;		/*	*/
 	int glatt;						/*	Tmp value.	*/
 
 	const char* ctitle = "wallpaper";
@@ -323,7 +323,7 @@ int main(int argc, char** argv){
 	glUseProgram(state.data.displayshader->prog);
 	glUniform1i(state.data.displayshader->texloc0, 0);
 
-	/*	*/
+	/*	Load transition from file.	 */
 	if(numtranspaths > 0)
 		swpLoadTransitionShaders(&state, numtranspaths, transfilepaths);
 	else{
@@ -344,7 +344,7 @@ int main(int argc, char** argv){
 
 	/*	Create Pixel buffer object.	*/
 	if(g_support_pbo)
-		glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
+		glGenBuffersARB(state.data.numtexs, &state.data.pbo[0]);
 
 	/*	Load textuer from file.	*/
 	if(fd > 0 ){
