@@ -543,6 +543,25 @@ int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 	return 1;
 }
 
+swpTransitionShader* swpCreateDefaultTransitionShader(swpRenderingState* __restrict__ state){
+
+	swpTransitionShader* trans;
+
+	/*	Create default transition shader.	*/
+	state->data.numshaders++;
+	state->data.shaders = realloc(state->data.shaders, state->data.numshaders * sizeof(swpTransitionShader));
+
+	/*	*/
+	assert(state->data.shaders);
+
+	/*	*/
+	trans = &state->data.shaders[state->data.numshaders - 1];
+
+	/*	Load shader.	*/
+	swpCreateTransitionShaders(trans, gc_fade_transition_fragment);
+
+	return trans;
+}
 
 GLuint swpGetGLTextureFormat(unsigned int ffpic){
 

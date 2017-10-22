@@ -326,20 +326,10 @@ int main(int argc, char** argv){
 	/*	Load transition from file.	 */
 	if(numtranspaths > 0)
 		swpLoadTransitionShaders(&state, numtranspaths, transfilepaths);
-	else{
+	else
+		swpCreateDefaultTransitionShader(&state);
 
-		swpTransitionShader* trans;
-		/*	Create default transition shader.	*/
-		state.data.numshaders++;
-		state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
-		assert(state.data.shaders);
-		trans = &state.data.shaders[state.data.numshaders - 1];
-
-		/*	Load shader.	*/
-		swpCreateTransitionShaders(trans, gc_fade_transition_fragment);
-	}
-
-	/*	*/
+	/*	Check if PBO is supported.	*/
 	g_support_pbo = swpCheckExtensionSupported("GL_ARB_pixel_buffer_object");
 
 	/*	Create Pixel buffer object.	*/
