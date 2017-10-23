@@ -133,6 +133,11 @@ extern const char* swpGetVersion(void);
 extern void swpEnableDebug(void);
 
 /**
+ *
+ */
+extern void swpLoadGLFunc(void);
+
+/**
  *	Parse.
  *	TODO rename to a more generic name.
  */

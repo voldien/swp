@@ -298,6 +298,9 @@ int main(int argc, char** argv){
 	glGetIntegerv( GL_MAX_TEXTURE_SIZE , &g_maxtexsize);
 	swpVerbosePrintf("Max texture size %d.\n", g_maxtexsize);
 
+	/*	Load OpenGL functions.	*/
+	swpLoadGLFunc();
+
 	/*	Enable opengl debug callback if in debug mode.	*/
 	if(g_debug){
 		swpEnableDebug();

@@ -46,6 +46,23 @@
 	#include <GL/glext.h>
 #endif
 
+/*	OpenGL ARB function pointers.	*/
+PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
+PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
+PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
+PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
+PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB = NULL;
+PFNGLDEBUGMESSAGECALLBACKAMDPROC glDebugMessageCallbackAMD = NULL;
+
+PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB = NULL;
+PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB = NULL;
+
+PFNGLSHADERSOURCEARBPROC glShaderSourceARB = NULL;
+PFNGLCOMPILESHADERARBPROC glCompileShaderARB = NULL;
+
+PFNGLUNIFORM1IARBPROC glUniform1iARB = NULL;
+PFNGLUNIFORM1FARBPROC glUniform1fARB = NULL;
+
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
 "#if __VERSION__ > 130\n"
@@ -256,26 +273,45 @@ void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
     printf("\n");
 }
 
-void swpEnableDebug(void){
-
-	PFNGLDEBUGMESSAGECALLBACKARBPROC __glDebugMessageCallbackARB;
-	PFNGLDEBUGMESSAGECALLBACKAMDPROC __glDebugMessageCallbackAMD;
+void swpLoadGLFunc(void){
 
     /*	Load function pointer by their symbol name.	*/
-    __glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
-    __glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
+	glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
+	glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
+
+	/*	Get function address.	*/
+	glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
+	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
+
+	/*	*/
+	glEnableVertexAttribArrayARB = SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
+	glVertexAttribPointerARB = SDL_GL_GetProcAddress("glVertexAttribPointerARB");
+
+	/*	*/
+	glShaderSourceARB = SDL_GL_GetProcAddress("glShaderSourceARB");
+	glCompileShaderARB = SDL_GL_GetProcAddress("glCompileShaderARB");
+
+	/*	*/
+	glUniform1iARB = SDL_GL_GetProcAddress("glUniform1iARB");
+	glUniform1fARB = SDL_GL_GetProcAddress("glUniform1fARB");
+
+}
+
+void swpEnableDebug(void){
 
 	/*	Check if function pointer exists!	*/
-	if (!__glDebugMessageCallbackAMD && !__glDebugMessageCallbackARB) {
+	if (!glDebugMessageCallbackAMD && !glDebugMessageCallbackARB) {
 		fprintf(stderr, "Failed loading OpenGL Message callback enable functions.\n");
 	}
 
 	/*	Set Debug message callback.	*/
-	if (__glDebugMessageCallbackARB) {
-		__glDebugMessageCallbackARB((GLDEBUGPROCARB)callback_debug_gl, NULL);
+	if (glDebugMessageCallbackARB) {
+		glDebugMessageCallbackARB((GLDEBUGPROCARB)callback_debug_gl, NULL);
 	}
-	if (__glDebugMessageCallbackAMD) {
-		__glDebugMessageCallbackAMD((GLDEBUGPROCAMD)callback_debug_gl, NULL);
+	if (glDebugMessageCallbackAMD) {
+		glDebugMessageCallbackAMD((GLDEBUGPROCAMD)callback_debug_gl, NULL);
 	}
 
     /*	Enable debug.	*/
@@ -760,11 +796,6 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	const unsigned int height = desc->height;
 	const unsigned int size = desc->size;
 
-	PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
-	PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
-	PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
-	PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
-
 	swpVerbosePrintf("Loading texture from pixel data.\n");
 
 	/*	Get compression.	*/
@@ -782,12 +813,6 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	}
 
 	if(g_support_pbo){
-
-		/*	Get function address.	*/
-		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
-		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
-		glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
-		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
 	#if defined(GLES2) || defined(GLES3)
