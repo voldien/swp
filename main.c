@@ -328,7 +328,7 @@ int main(int argc, char** argv){
 
 	/*	Load transition from file.	 */
 	if(numtranspaths > 0)
-		swpLoadTransitionShaders(&state, numtranspaths, transfilepaths);
+		swpLoadTransitionShaders(&state, numtranspaths, (const char**)transfilepaths);
 	else
 		swpCreateDefaultTransitionShader(&state);
 

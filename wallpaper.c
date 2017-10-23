@@ -149,7 +149,6 @@ const char* swpGetVersion(void){
 void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
         GLsizei length, const GLchar* message, GLvoid* userParam) {
 
-	char* stringStream;
     char* sourceString;
     char* typeString;
     char* severityString;
