@@ -339,7 +339,7 @@ int main(int argc, char** argv){
 	if(g_support_pbo)
 		glGenBuffersARB(state.data.numtexs, &state.data.pbo[0]);
 
-	/*	Load textuer from file.	*/
+	/*	Load texture from file.	*/
 	if(fd > 0 ){
 		swpTextureDesc desc = { 0 };
 		swpReadPicFromfd(fd, &desc);
