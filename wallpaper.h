@@ -133,6 +133,11 @@ extern const char* swpGetVersion(void);
 extern void swpEnableDebug(void);
 
 /**
+ *
+ */
+extern void swpLoadGLFunc(void);
+
+/**
  *	Parse.
  *	TODO rename to a more generic name.
  */
@@ -214,6 +219,11 @@ extern int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 		const char* __restrict__ source);
 
 /**
+ *
+ */
+extern swpTransitionShader* swpCreateDefaultTransitionShader(swpRenderingState* __restrict__ state);
+
+/**
  *	Get texture format from freeeimage color space data type.
  *
  *	@Return
@@ -226,7 +236,6 @@ extern GLuint swpGetGLTextureFormat(unsigned int ffpic);
  *	@Return number of bytes loaded.
  */
 ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc);
-
 
 /**
  *	Load texture from texture description to
@@ -280,7 +289,5 @@ extern void swpCatchSignal(int sig);
  */
 void swpRender(GLuint vao, SDL_Window* __restrict__ window,
         swpRenderingState* __restrict__ state);
-
-
 
 #endif

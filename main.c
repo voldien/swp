@@ -63,9 +63,9 @@ int main(int argc, char** argv){
 	/*	*/
 	SDL_Event event = {0};			/*	*/
 	SDL_Thread* thread = NULL;		/*	*/
-	swpRenderingState state = {0};	/*	*/
+	swpRenderingState state = {0};		/*	*/
 	SDL_Window* window = NULL;		/*	*/
-	SDL_GLContext* context = NULL;	/*	*/
+	SDL_GLContext* context = NULL;		/*	*/
 	int glatt;						/*	Tmp value.	*/
 
 	const char* ctitle = "wallpaper";
@@ -298,6 +298,9 @@ int main(int argc, char** argv){
 	glGetIntegerv( GL_MAX_TEXTURE_SIZE , &g_maxtexsize);
 	swpVerbosePrintf("Max texture size %d.\n", g_maxtexsize);
 
+	/*	Load OpenGL functions.	*/
+	swpLoadGLFunc();
+
 	/*	Enable opengl debug callback if in debug mode.	*/
 	if(g_debug){
 		swpEnableDebug();
@@ -323,28 +326,18 @@ int main(int argc, char** argv){
 	glUseProgram(state.data.displayshader->prog);
 	glUniform1i(state.data.displayshader->texloc0, 0);
 
-	/*	*/
+	/*	Load transition from file.	 */
 	if(numtranspaths > 0)
 		swpLoadTransitionShaders(&state, numtranspaths, transfilepaths);
-	else{
+	else
+		swpCreateDefaultTransitionShader(&state);
 
-		swpTransitionShader* trans;
-		/*	Create default transition shader.	*/
-		state.data.numshaders++;
-		state.data.shaders = realloc(state.data.shaders, state.data.numshaders * sizeof(swpTransitionShader));
-		assert(state.data.shaders);
-		trans = &state.data.shaders[state.data.numshaders - 1];
-
-		/*	Load shader.	*/
-		swpCreateTransitionShaders(trans, gc_fade_transition_fragment);
-	}
-
-	/*	*/
+	/*	Check if PBO is supported.	*/
 	g_support_pbo = swpCheckExtensionSupported("GL_ARB_pixel_buffer_object");
 
 	/*	Create Pixel buffer object.	*/
 	if(g_support_pbo)
-		glGenBuffers(state.data.numtexs, &state.data.pbo[0]);
+		glGenBuffersARB(state.data.numtexs, &state.data.pbo[0]);
 
 	/*	Load textuer from file.	*/
 	if(fd > 0 ){

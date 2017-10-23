@@ -1,22 +1,3 @@
-/**
-    Simple wallpaper program.
-    Copyright (C) 2016  Valdemar Lindberg
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
-
 #include "wallpaper.h"
 
 #include <fcntl.h>
@@ -45,6 +26,23 @@
 	#include <GL/gl.h>
 	#include <GL/glext.h>
 #endif
+
+/*	OpenGL ARB function pointers.	*/
+PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
+PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
+PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
+PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
+PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB = NULL;
+PFNGLDEBUGMESSAGECALLBACKAMDPROC glDebugMessageCallbackAMD = NULL;
+
+PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB = NULL;
+PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB = NULL;
+
+PFNGLSHADERSOURCEARBPROC glShaderSourceARB = NULL;
+PFNGLCOMPILESHADERARBPROC glCompileShaderARB = NULL;
+
+PFNGLUNIFORM1IARBPROC glUniform1iARB = NULL;
+PFNGLUNIFORM1FARBPROC glUniform1fARB = NULL;
 
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
@@ -246,33 +244,55 @@ void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
             severityString = "Unknown";
             break;
         }
-    }/**/
+    }
+
+    /*	*/
     printf(severityString);
 
+    /*	*/
     printf(message);
     printf("\n");
 }
 
-void swpEnableDebug(void){
-
-	PFNGLDEBUGMESSAGECALLBACKARBPROC __glDebugMessageCallbackARB;
-	PFNGLDEBUGMESSAGECALLBACKAMDPROC __glDebugMessageCallbackAMD;
+void swpLoadGLFunc(void){
 
     /*	Load function pointer by their symbol name.	*/
-    __glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
-    __glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
+	glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
+	glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
+
+	/*	Get function address.	*/
+	glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
+	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
 	/*	*/
-	if (!__glDebugMessageCallbackAMD && !__glDebugMessageCallbackARB) {
+	glEnableVertexAttribArrayARB = SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
+	glVertexAttribPointerARB = SDL_GL_GetProcAddress("glVertexAttribPointerARB");
+
+	/*	*/
+	glShaderSourceARB = SDL_GL_GetProcAddress("glShaderSourceARB");
+	glCompileShaderARB = SDL_GL_GetProcAddress("glCompileShaderARB");
+
+	/*	*/
+	glUniform1iARB = SDL_GL_GetProcAddress("glUniform1iARB");
+	glUniform1fARB = SDL_GL_GetProcAddress("glUniform1fARB");
+
+}
+
+void swpEnableDebug(void){
+
+	/*	Check if function pointer exists!	*/
+	if (!glDebugMessageCallbackAMD && !glDebugMessageCallbackARB) {
 		fprintf(stderr, "Failed loading OpenGL Message callback enable functions.\n");
 	}
 
 	/*	Set Debug message callback.	*/
-	if (__glDebugMessageCallbackARB) {
-		__glDebugMessageCallbackARB(callback_debug_gl, NULL);
+	if (glDebugMessageCallbackARB) {
+		glDebugMessageCallbackARB((GLDEBUGPROCARB)callback_debug_gl, NULL);
 	}
-	if (__glDebugMessageCallbackAMD) {
-		__glDebugMessageCallbackAMD(callback_debug_gl, NULL);
+	if (glDebugMessageCallbackAMD) {
+		glDebugMessageCallbackAMD((GLDEBUGPROCAMD)callback_debug_gl, NULL);
 	}
 
     /*	Enable debug.	*/
@@ -315,11 +335,14 @@ long int swpLoadFile(const char* cfilename, void** data){
 	pos = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
+	/*	*/
 	data[0] = malloc(pos);
 	assert(data[0]);
 
+	/*	*/
 	nBytes = fread(data[0], 1, pos, f );
 
+	/*	*/
 	fclose(f);
 
 	return nBytes;
@@ -391,12 +414,12 @@ unsigned int swpCheckExtensionSupported(const char* extension){
 		for(i = 0; i < k; i++){
 			const GLubyte* nextension = glGetStringi(GL_EXTENSIONS, i);
 			if(nextension){
-				if(strstr(nextension, extension))
+				if(strstr((const char*)nextension, extension))
 					return 1;
 			}
 		}
 	}else
-		return (strstr(glGetString(GL_EXTENSIONS), extension) != NULL);
+		return (strstr((const char*)glGetString(GL_EXTENSIONS), extension) != NULL);
 
 	return 0;
 }
@@ -414,12 +437,12 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	int value;
 	const char* strcore;
 
-
+	/*	*/
 	swpVerbosePrintf("Loading shader program.\n");
 
 	/*	Check if core.	*/
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &value);
-	strcore = ( value & SDL_GL_CONTEXT_PROFILE_CORE != 0 ) ? "core" : "";
+	strcore = ( (value & SDL_GL_CONTEXT_PROFILE_CORE) != 0 ) ? "core" : "";
 
 	/*	Create version string.	*/
 	memset(glversion, 0, sizeof(glversion));
@@ -466,6 +489,7 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 		fprintf(stderr, "%s\n", info);
 	}
 
+	/*	Bind shader attribute for legacy shader version.	*/
 	glBindAttribLocationARB(prog, 0,  "vertex");
 	glBindFragDataLocation(prog, 0, "fragColor");
 
@@ -513,6 +537,8 @@ int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 
 	/*	Create shader and check if successfully.	*/
 	trans->prog = swpCreateShader(gc_vertex, source);
+
+	/*	Check error.	*/
 	if(trans->prog < 0)
 		return 0;
 
@@ -534,6 +560,25 @@ int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 	return 1;
 }
 
+swpTransitionShader* swpCreateDefaultTransitionShader(swpRenderingState* __restrict__ state){
+
+	swpTransitionShader* trans;
+
+	/*	Create default transition shader.	*/
+	state->data.numshaders++;
+	state->data.shaders = realloc(state->data.shaders, state->data.numshaders * sizeof(swpTransitionShader));
+
+	/*	*/
+	assert(state->data.shaders);
+
+	/*	*/
+	trans = &state->data.shaders[state->data.numshaders - 1];
+
+	/*	Load shader.	*/
+	swpCreateTransitionShaders(trans, gc_fade_transition_fragment);
+
+	return trans;
+}
 
 GLuint swpGetGLTextureFormat(unsigned int ffpic){
 
@@ -569,7 +614,6 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	char inbuf[4096];					/**/
 	register ssize_t len = 0;			/**/
 	register ssize_t totallen = 0;		/**/
-
 
 	/*	Free image.	*/
 	FREE_IMAGE_FORMAT imgtype;			/**/
@@ -718,9 +762,6 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	return totallen;
 }
 
-
-
-
 int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 
 	GLuint intfor = desc->intfor;			/*	*/
@@ -735,11 +776,6 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	const unsigned int width = desc->width;
 	const unsigned int height = desc->height;
 	const unsigned int size = desc->size;
-
-	PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
-	PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
-	PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
-	PFNGLBUFFERDATAARBPROC glBufferDataARB = NULL;
 
 	swpVerbosePrintf("Loading texture from pixel data.\n");
 
@@ -758,12 +794,6 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	}
 
 	if(g_support_pbo){
-
-		/*	Get function address.	*/
-		glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
-		glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
-		glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
-		glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
 	#if defined(GLES2) || defined(GLES3)
