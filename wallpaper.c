@@ -1012,7 +1012,7 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 		swpVerbosePrintf("Render Transition view.\n");
 
 		/*	*/
-		assert(state->data.numshaders < 2);
+		assert(state->data.numshaders > 1);
 
 		/*	*/
 		trashader = &state->data.shaders[glprindex];
