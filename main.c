@@ -244,7 +244,9 @@ int main(int argc, char** argv){
 
 	/*	Check if debug is enabled.	*/
 	if(g_debug){
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &glatt) | SDL_GL_CONTEXT_DEBUG_FLAG);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,
+		        SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &glatt)
+		                | SDL_GL_CONTEXT_DEBUG_FLAG);
 	}
 
 	/*	Create OpenGL Context.	*/
@@ -265,7 +267,7 @@ int main(int argc, char** argv){
 		goto error;
 	}
 
-	/*	Create thread.	*/
+	/*	Create FIFO thread.	*/
 	thread = SDL_CreateThread((SDL_ThreadFunction) swpCatchPipedTexture,
 			"catch_pipe", &fdfifo);
 	if (thread == NULL) {
@@ -283,6 +285,7 @@ int main(int argc, char** argv){
 	glDisable(GL_DEPTH_TEST);	/*	Depth isn't needed.	*/
 	glDisable(GL_STENCIL_TEST);	/*	Stencil isn't needed.	*/
 	glDisable(GL_CULL_FACE);
+	glDisable(GL_SCISSOR_TEST);
 	glCullFace(GL_FRONT_AND_BACK);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);

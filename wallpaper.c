@@ -260,7 +260,7 @@ void swpLoadGLFunc(void){
 	glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
 
 	/*	Get function address.	*/
-	glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+	glBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBufferARB");
 	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
 	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
 	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
