@@ -61,6 +61,7 @@ int main(int argc, char** argv){
 	int visible = 1;
 
 	/*	*/
+	swpTextureDesc desc = { 0 };
 	SDL_Event event = {0};			/*	*/
 	SDL_Thread* thread = NULL;		/*	*/
 	swpRenderingState state = {0};		/*	*/
@@ -353,10 +354,13 @@ int main(int argc, char** argv){
 
 	/*	Load texture from STDIN if piped.	*/
 	if(pipe == 1){
-		swpTextureDesc desc = { 0 };
+
 		swpReadPicFromfd(STDIN_FILENO, &desc);
-		swpLoadTextureFromMem(&state.data.texs[state.data.curtex],
-				state.data.pbo[state.data.curtex], &desc);
+
+		event.user.code = 0;
+		event.type = SDL_USEREVENT;
+		event.user.data1 = (void*)&desc;
+		SDL_PushEvent(&event);
 	}
 
 	/*	Initialize texture binding.	*/
