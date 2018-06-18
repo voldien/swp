@@ -61,7 +61,8 @@ typedef struct swp_transition_shader_t{
 }swpTransitionShader;
 
 /**
- *	Rendering state data block.
+ *	Rendering object state and
+ *	assoicated rendering data.
  */
 typedef struct swp_rendering_s_t{
 	GLuint vao;                     /*	Vertex array object. Used for higher version of OpenGL.	*/

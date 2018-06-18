@@ -44,13 +44,13 @@
 
 int main(int argc, char** argv){
 
-	int status = EXIT_SUCCESS;			/*	*/
-	int result;							/*	*/
-	int i;								/*	*/
-	int x;								/*	*/
-	int fd = 0;							/*	*/
-	int pipe = 0;						/*	*/
-	int fdfifo = 0;						/*	*/
+	int status = EXIT_SUCCESS;      /*	*/
+	int result;                     /*	*/
+	int i;                          /*	*/
+	int x;                          /*	*/
+	int fd = 0;                     /*	*/
+	int pipe = 0;                   /*	*/
+	int fdfifo = 0;                 /*	*/
 	int64_t before;
 
 	/*	*/
@@ -62,18 +62,18 @@ int main(int argc, char** argv){
 
 	/*	*/
 	swpTextureDesc desc = { 0 };
-	SDL_Event event = {0};			/*	*/
-	SDL_Thread* thread = NULL;		/*	*/
-	swpRenderingState state = {0};		/*	*/
-	SDL_Window* window = NULL;		/*	*/
-	SDL_GLContext* context = NULL;		/*	*/
-	int glatt;						/*	Tmp value.	*/
+	SDL_Event event = {0};          /*	*/
+	SDL_Thread* thread = NULL;      /*	*/
+	swpRenderingState state = {0};  /*	*/
+	SDL_Window* window = NULL;      /*	*/
+	SDL_GLContext* context = NULL;  /*	*/
+	int glatt;                      /*	Tmp value.	*/
 
 	const char* ctitle = "wallpaper";
 
 	/*	OpenGL display buffer.	*/
-	GLuint vao;	/*	*/
-	GLuint vbo;	/*	*/
+	GLuint vao;
+	GLuint vbo;
 
 	/*	*/
 	int c;
@@ -94,7 +94,7 @@ int main(int argc, char** argv){
 		{"socket",      required_argument,	NULL, 'S'},	/*	Listen on socket.	*/
 		{"file",        required_argument,	NULL, 'f'},	/*	File to load picture from.	*/
 		{"filter",      required_argument,	NULL, 'B'},	/*	Filter.	*/
-		{"title",	required_argument,	NULL, 'T'},	/*	Override the title.	*/
+		{"title",       required_argument,	NULL, 'T'},	/*	Override the title.	*/
 
 		{"row",         required_argument, 	NULL, 'r'},
 		{"column",      required_argument, 	NULL, 'c'},

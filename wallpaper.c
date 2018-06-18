@@ -610,18 +610,18 @@ GLuint swpGetGLTextureFormat(unsigned int ffpic){
 ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	*/
-	char inbuf[4096];					/**/
-	register ssize_t len = 0;			/**/
-	register ssize_t totallen = 0;		/**/
+	char inbuf[4096];                   /**/
+	register ssize_t len = 0;           /**/
+	register ssize_t totallen = 0;      /**/
 
 	/*	Free image.	*/
-	FREE_IMAGE_FORMAT imgtype;			/**/
-	FREE_IMAGE_COLOR_TYPE colortype;	/**/
-	FREE_IMAGE_TYPE imgt;				/**/
-	FIMEMORY *stream;					/**/
-	FIBITMAP* firsbitmap;				/**/
-	FIBITMAP* bitmap;					/**/
-	void* pixel;						/**/
+	FREE_IMAGE_FORMAT imgtype;          /**/
+	FREE_IMAGE_COLOR_TYPE colortype;    /**/
+	FREE_IMAGE_TYPE imgt;               /**/
+	FIMEMORY *stream;                   /**/
+	FIBITMAP* firsbitmap;               /**/
+	FIBITMAP* bitmap;                   /**/
+	void* pixel;                        /**/
 
 	/*	*/
 	unsigned int width;
@@ -763,12 +763,12 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 
-	GLuint intfor = desc->intfor;			/*	*/
-	GLuint format = desc->format;			/*	*/
-	GLuint imgdatatype = desc->imgdatatype;	/*	*/
-	GLboolean status;						/*	*/
-	GLenum err = 0;							/*	*/
-	GLubyte* pbuf = NULL;					/*	*/
+	GLuint intfor = desc->intfor;           /*	*/
+	GLuint format = desc->format;           /*	*/
+	GLuint imgdatatype = desc->imgdatatype; /*	*/
+	GLboolean status;                       /*	*/
+	GLenum err = 0;                         /*	*/
+	GLubyte* pbuf = NULL;                   /*	*/
 
 	/*	*/
 	const void* pixel = desc->pixel;
