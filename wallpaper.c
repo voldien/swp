@@ -388,10 +388,15 @@ unsigned int swpGetGLSLVersion(void){
 	wspac = strstr(glstring, " ");
 	if(wspac){
 		*wspac = '\0';
-	}
-	version = strtof(glstring, NULL) * 100;
+	}	if(strstr(glstring, ".") != NULL){
+		unsigned int major = (unsigned int)(glstring[0] - '0') * 100;
+		unsigned int minor = (unsigned int)(glstring[2] - '0') * 10;
 
-	return version;
+		return  major + minor;
+	}else{
+		version = strtof(glstring, NULL) * 100;
+		return version;
+	}
 }
 
 unsigned int swpCheckExtensionSupported(const char* extension){
