@@ -37,12 +37,14 @@ PFNGLDEBUGMESSAGECALLBACKAMDPROC glDebugMessageCallbackAMD = NULL;
 
 PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB = NULL;
 PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB = NULL;
+PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB = NULL;
 
 PFNGLSHADERSOURCEARBPROC glShaderSourceARB = NULL;
 PFNGLCOMPILESHADERARBPROC glCompileShaderARB = NULL;
 
 PFNGLUNIFORM1IARBPROC glUniform1iARB = NULL;
 PFNGLUNIFORM1FARBPROC glUniform1fARB = NULL;
+PFNGLUNIFORM1FVARBPROC glUniform1fvARB = NULL;
 PFNGLPROGRAMUNIFORM1IPROC glProgramUniform1i = NULL;
 PFNGLPROGRAMUNIFORM1FPROC glProgramUniform1f = NULL;
 
@@ -291,6 +293,8 @@ void swpLoadGLFunc(void) {
 	glEnableVertexAttribArrayARB = SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
 	glVertexAttribPointerARB = SDL_GL_GetProcAddress("glVertexAttribPointerARB");
 
+	glBindAttribLocationARB = SDL_GL_GetProcAddress("glBindAttribLocationARB");
+
 	/*	*/
 	glShaderSourceARB = SDL_GL_GetProcAddress("glShaderSourceARB");
 	glCompileShaderARB = SDL_GL_GetProcAddress("glCompileShaderARB");
@@ -298,6 +302,7 @@ void swpLoadGLFunc(void) {
 	/*	*/
 	glUniform1iARB = SDL_GL_GetProcAddress("glUniform1iARB");
 	glUniform1fARB = SDL_GL_GetProcAddress("glUniform1fARB");
+	glUniform1fvARB = SDL_GL_GetProcAddress("glUniform1fvARB");
 
 	glProgramUniform1i = SDL_GL_GetProcAddress("glProgramUniform1i");
 	glProgramUniform1f = SDL_GL_GetProcAddress("glProgramUniform1f");

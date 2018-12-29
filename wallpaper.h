@@ -19,6 +19,7 @@
 #ifndef _SWP_WALLPAPER_H_
 #define _SWP_WALLPAPER_H_ 1
 #include <GL/gl.h>
+#include <GL/glext.h>
 #include <stdio.h>
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_video.h>
@@ -46,6 +47,29 @@ extern int g_winpos[2];                 /*	Window position.	*/
 extern int g_maxtexsize;                /*	OpenGL max texture size, (Check texture proxy later)*/
 extern int g_support_pbo;               /*	Pixel buffer object for fast image transfer.	*/
 extern unsigned int g_core_profile;     /*  */
+
+
+/*	OpenGL ARB function pointers.	*/
+extern PFNGLMAPBUFFERPROC glMapBufferARB;
+extern PFNGLUNMAPBUFFERPROC glUnmapBufferARB;
+extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
+extern PFNGLBUFFERDATAARBPROC glBufferDataARB;
+extern PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB;
+extern PFNGLDEBUGMESSAGECALLBACKAMDPROC glDebugMessageCallbackAMD;
+
+extern PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB;
+extern PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB;
+
+extern PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB;
+
+extern PFNGLSHADERSOURCEARBPROC glShaderSourceARB;
+extern PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
+
+extern PFNGLUNIFORM1IARBPROC glUniform1iARB;
+extern PFNGLUNIFORM1FARBPROC glUniform1fARB;
+extern PFNGLUNIFORM1FVARBPROC glUniform1fvARB;
+extern PFNGLPROGRAMUNIFORM1IPROC glProgramUniform1i;
+extern PFNGLPROGRAMUNIFORM1FPROC glProgramUniform1f;
 
 #define SWP_NUM_TEXTURES 3
 
