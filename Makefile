@@ -3,7 +3,7 @@
 # Versions
 MAJOR := 0
 MINOR := 9
-PATCH := 2
+PATCH := 3
 STATE := rc
 VERSION := $(MAJOR).$(MINOR)$(STATE)$(PATCH)
 # Utilitys
