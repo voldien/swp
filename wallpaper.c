@@ -151,11 +151,11 @@ int g_support_pbo = 0;
 unsigned int g_core_profile = 1;
 
 
-int swpVerbosePrintf(const char* format,...){
+int swpVerbosePrintf(const char *format, ...) {
 
 	int status = -1;
 
-	if(g_verbose != 0){
+	if (g_verbose != 0) {
 		va_list vl;
 		va_start(vl, format);
 		status = vfprintf(stdout, format, vl);
@@ -164,7 +164,7 @@ int swpVerbosePrintf(const char* format,...){
 	return status;
 }
 
-const char* swpGetVersion(void){
+const char *swpGetVersion(void) {
 	return SWP_STR_VERSION;
 }
 
@@ -304,7 +304,7 @@ void swpLoadGLFunc(void) {
 
 }
 
-void swpEnableDebug(void){
+void swpEnableDebug(void) {
 
 	/*	Check if function pointer exists!	*/
 	if (!glDebugMessageCallbackAMD && !glDebugMessageCallbackARB) {
@@ -313,44 +313,44 @@ void swpEnableDebug(void){
 
 	/*	Set Debug message callback.	*/
 	if (glDebugMessageCallbackARB) {
-		glDebugMessageCallbackARB((GLDEBUGPROCARB)callback_debug_gl, NULL);
+		glDebugMessageCallbackARB((GLDEBUGPROCARB) callback_debug_gl, NULL);
 	}
 	if (glDebugMessageCallbackAMD) {
-		glDebugMessageCallbackAMD((GLDEBUGPROCAMD)callback_debug_gl, NULL);
+		glDebugMessageCallbackAMD((GLDEBUGPROCAMD) callback_debug_gl, NULL);
 	}
 
-    /*	Enable debug.	*/
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+	/*	Enable debug.	*/
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 }
 
 
-void swpParseResolutionArgument(const char* arg, int* res){
+void swpParseResolutionArgument(const char *arg, int *res) {
 
-	char* lws;
-	char* rws;
+	char *lws;
+	char *rws;
 	char optarg[1024];
 	memcpy(optarg, arg, strlen(arg) + 1);
 
 	/*	Parse.	*/
 	lws = strstr(optarg, "x");
 	*lws = '\0';
-	rws = (char*)(lws + 1);
+	rws = (char *) (lws + 1);
 	lws = optarg;
-	res[0] = (int)strtol((const char *)lws, NULL, 10);
-	res[1] = (int)strtol((const char *)rws, NULL, 10);
+	res[0] = (int) strtol((const char *) lws, NULL, 10);
+	res[1] = (int) strtol((const char *) rws, NULL, 10);
 }
 
 
-long int swpLoadFile(const char* cfilename, void** data){
+long int swpLoadFile(const char *cfilename, void **data) {
 
-	FILE* f;			/*	*/
-	long int pos;		/*	*/
-	long int nBytes;	/*	*/
+	FILE *f;            /*	*/
+	long int pos;        /*	*/
+	long int nBytes;    /*	*/
 
 	f = fopen(cfilename, "rb");
-	if(f == NULL){
-		fprintf(stderr, "Failed to open %s, %s.\n", cfilename, strerror(errno) );
+	if (f == NULL) {
+		fprintf(stderr, "Failed to open %s, %s.\n", cfilename, strerror(errno));
 		return -1;
 	}
 
@@ -364,7 +364,7 @@ long int swpLoadFile(const char* cfilename, void** data){
 	assert(data[0]);
 
 	/*	*/
-	nBytes = fread(data[0], 1, pos, f );
+	nBytes = fread(data[0], 1, pos, f);
 
 	/*	*/
 	fclose(f);
@@ -372,25 +372,26 @@ long int swpLoadFile(const char* cfilename, void** data){
 	return nBytes;
 }
 
-long int swpLoadString(const char* __restrict__ cfilename,
-		void** __restrict__ data){
+long int swpLoadString(const char *__restrict__ cfilename,
+                       void **__restrict__ data) {
 
 	long int l;
 
 	l = swpLoadFile(cfilename, data);
-	if(l > 0){
+	if (l > 0) {
 		*data = realloc(*data, l + 1);
-		((char**)*data)[l] = '\0';
+		((char **) *data)[l] = '\0';
 	}
 
 	return l;
 }
 
-void swpGenerateQuad(GLuint* vao, GLuint* vbo){
+void swpGenerateQuad(GLuint *vao, GLuint *vbo) {
 
 	swpVerbosePrintf("Generating display quad.\n");
 	glGenVertexArrays(1, vao);
 	glBindVertexArray(*vao);
+
 
 	glGenBuffersARB(1, vbo);
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, *vbo);
@@ -402,69 +403,70 @@ void swpGenerateQuad(GLuint* vao, GLuint* vbo){
 	glBindVertexArray(0);
 }
 
-unsigned int swpGetGLSLVersion(void){
+unsigned int swpGetGLSLVersion(void) {
 
 	unsigned int version;
 	char glstring[128] = {0};
-	char* wspac;
+	char *wspac;
 
 	/*	Extract version number.	*/
-	strcpy(glstring, (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+	strcpy(glstring, (const char *) glGetString(GL_SHADING_LANGUAGE_VERSION));
 	wspac = strstr(glstring, " ");
-	if(wspac){
+	if (wspac) {
 		*wspac = '\0';
-	}	if(strstr(glstring, ".") != NULL){
-		unsigned int major = (unsigned int)(glstring[0] - '0') * 100;
-		unsigned int minor = (unsigned int)(glstring[2] - '0') * 10;
+	}
+	if (strstr(glstring, ".") != NULL) {
+		unsigned int major = (unsigned int) (glstring[0] - '0') * 100;
+		unsigned int minor = (unsigned int) (glstring[2] - '0') * 10;
 
-		return  major + minor;
-	}else{
+		return major + minor;
+	} else {
 		version = strtof(glstring, NULL) * 100;
 		return version;
 	}
 }
 
-unsigned int swpCheckExtensionSupported(const char* extension){
+unsigned int swpCheckExtensionSupported(const char *extension) {
 
 	int i;
 	GLint k;
 	PFNGLGETSTRINGIPROC glGetStringi = NULL;
 
 	/*	*/
-	glGetStringi = (PFNGLGETSTRINGIPROC)SDL_GL_GetProcAddress("glGetStringi");
+	glGetStringi = (PFNGLGETSTRINGIPROC) SDL_GL_GetProcAddress("glGetStringi");
 
 	/*	*/
-	if(glGetStringi){
+	if (glGetStringi) {
 
 		/*	*/
 		glGetIntegerv(GL_NUM_EXTENSIONS, &k);
 
 		/*	Iterate each extensions.	*/
-		for(i = 0; i < k; i++){
-			const GLubyte* nextension = glGetStringi(GL_EXTENSIONS, i);
-			if(nextension){
-				if(strstr((const char*)nextension, extension))
+		for (i = 0; i < k; i++) {
+			const GLubyte *nextension = glGetStringi(GL_EXTENSIONS, i);
+			if (nextension) {
+				if (strstr((const char *) nextension, extension))
 					return 1;
 			}
 		}
-	}else
-		return (strstr((const char*)glGetString(GL_EXTENSIONS), extension) != NULL);
+	} else
+		return (strstr((const char *) glGetString(GL_EXTENSIONS), extension) != NULL);
 
 	return 0;
 }
 
 
-GLuint swpCreateShader(const char* vshader, const char* fshader){
+GLuint swpCreateShader(const char *vshader, const char *fshader) {
 
 	GLuint vs, fs;
 	GLuint prog;
 	GLuint vstatus, lstatus;
-	const char* vsources[2];
-	const char* fsources[2];
+	const char *vsources[2];
+	const char *fsources[2];
 	char glversion[32];
 
 	int value;
-	const char* strcore;
+	const char *strcore;
 
 	/*	*/
 	swpVerbosePrintf("Loading shader program.\n");
@@ -474,21 +476,21 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	strcore = "";
 	/*	Create version string.	*/
 	memset(glversion, 0, sizeof(glversion));
-	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), strcore);	/*	TODO evalute.*/
+	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), strcore);    /*	TODO evalute.*/
 	vsources[0] = glversion;
 	fsources[0] = glversion;
 
 	/*	*/
 	prog = glCreateProgram();
 
-	if(vshader != NULL){
+	if (vshader != NULL) {
 		vsources[1] = vshader;
 		vs = glCreateShader(GL_VERTEX_SHADER_ARB);
 		glShaderSourceARB(vs, 2, vsources, NULL);
 		glCompileShaderARB(vs);
 		glAttachShader(prog, vs);
 	}
-	if(fshader != NULL){
+	if (fshader != NULL) {
 		fsources[1] = fshader;
 		fs = glCreateShader(GL_FRAGMENT_SHADER_ARB);
 		glShaderSourceARB(fs, 2, fsources, NULL);
@@ -505,20 +507,20 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	glGetProgramiv(prog, GL_VALIDATE_STATUS, &vstatus);
 
 	/*	Check if link successfully.	*/
-	if(lstatus == GL_FALSE){
+	if (lstatus == GL_FALSE) {
 		char info[4096];
 		glGetProgramInfoLog(prog, sizeof(info), NULL, &info[0]);
 		fprintf(stderr, "%s\n", info);
 		return -1;
 	}
-	if(vstatus == GL_FALSE){
+	if (vstatus == GL_FALSE) {
 		char info[4096];
 		glGetProgramInfoLog(prog, sizeof(info), NULL, &info[0]);
 		fprintf(stderr, "%s\n", info);
 	}
 
 	/*	Bind shader attribute for legacy shader version.	*/
-	glBindAttribLocationARB(prog, 0,  "vertex");
+	glBindAttribLocationARB(prog, 0, "vertex");
 	glBindFragDataLocation(prog, 0, "fragColor");
 
 	/*	Detach shaderer object and release their resources.	*/
@@ -530,21 +532,21 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	return prog;
 }
 
-void swpLoadTransitionShaders(swpRenderingState* __restrict__ state,
-		unsigned int count, const char** __restrict__ filepaths) {
+void swpLoadTransitionShaders(swpRenderingState *__restrict__ state,
+                              unsigned int count, const char **__restrict__ filepaths) {
 
 	int x;
 
 	swpVerbosePrintf("Loading %d number of transition shaders.\n", count);
 
 	/*	Iterate through each shader.	*/
-	for(x = 0; x < count; x++){
-		void* fragdata = NULL;
-		const char* fsource = filepaths[x];
+	for (x = 0; x < count; x++) {
+		void *fragdata = NULL;
+		const char *fsource = filepaths[x];
 
 		/*	Get new shader object index.	*/
 		const int index = state->data.numshaders;
-		swpTransitionShader* trans;
+		swpTransitionShader *trans;
 
 		/*	Allocate shader object.	*/
 		state->data.numshaders++;
@@ -554,20 +556,20 @@ void swpLoadTransitionShaders(swpRenderingState* __restrict__ state,
 
 		/*	Load shader.	*/
 		swpVerbosePrintf("Loading %s.\n", fsource);
-		if( swpLoadFile(fsource, &fragdata) > 0){
+		if (swpLoadFile(fsource, &fragdata) > 0) {
 			swpCreateTransitionShaders(trans, fragdata);
 		}
 	}
 }
 
-int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
-		const char* __restrict__ source) {
+int swpCreateTransitionShaders(swpTransitionShader *__restrict__ trans,
+                               const char *__restrict__ source) {
 
 	/*	Create shader and check if successfully.	*/
 	trans->prog = swpCreateShader(gc_vertex, source);
 
 	/*	Check error.	*/
-	if(trans->prog < 0)
+	if (trans->prog < 0)
 		return 0;
 
 	/*	Default elapse time for transition shader.	*/
@@ -588,9 +590,9 @@ int swpCreateTransitionShaders(swpTransitionShader* __restrict__ trans,
 	return 1;
 }
 
-swpTransitionShader* swpCreateDefaultTransitionShader(swpRenderingState* __restrict__ state){
+swpTransitionShader *swpCreateDefaultTransitionShader(swpRenderingState *__restrict__ state) {
 
-	swpTransitionShader* trans;
+	swpTransitionShader *trans;
 
 	/*	Create default transition shader.	*/
 	state->data.numshaders++;
@@ -608,35 +610,35 @@ swpTransitionShader* swpCreateDefaultTransitionShader(swpRenderingState* __restr
 	return trans;
 }
 
-GLuint swpGetGLTextureFormat(unsigned int ffpic){
+GLuint swpGetGLTextureFormat(unsigned int ffpic) {
 
-	switch(ffpic){
-	case FIT_BITMAP:
-		return GL_UNSIGNED_BYTE;
-	case FIT_UINT16:
-		return GL_UNSIGNED_SHORT;
-	case FIT_INT16:
-		return GL_SHORT;
-	case FIT_UINT32:
-		return GL_UNSIGNED_INT;
-	case FIT_INT32:
-		return GL_INT;
-	case FIT_FLOAT:
-		return GL_FLOAT;
-	case FIT_RGB16:
-		return GL_RGB16;
-	case FIT_RGBA16:
-		return GL_RGBA16;
-	case FIT_RGBF:
-	case FIT_RGBAF:
-	default:
-		fprintf(stderr, "Coulnd't find OpenGL data type for texture.\n");
-		return 0;
+	switch (ffpic) {
+		case FIT_BITMAP:
+			return GL_UNSIGNED_BYTE;
+		case FIT_UINT16:
+			return GL_UNSIGNED_SHORT;
+		case FIT_INT16:
+			return GL_SHORT;
+		case FIT_UINT32:
+			return GL_UNSIGNED_INT;
+		case FIT_INT32:
+			return GL_INT;
+		case FIT_FLOAT:
+			return GL_FLOAT;
+		case FIT_RGB16:
+			return GL_RGB16;
+		case FIT_RGBA16:
+			return GL_RGBA16;
+		case FIT_RGBF:
+		case FIT_RGBAF:
+		default:
+			fprintf(stderr, "Coulnd't find OpenGL data type for texture.\n");
+			return 0;
 	}
 }
 
 
-ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
+ssize_t swpReadPicFromfd(int fd, swpTextureDesc *desc) {
 
 	/*	*/
 	char inbuf[4096];                   /**/
@@ -648,9 +650,9 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	FREE_IMAGE_COLOR_TYPE colortype;    /**/
 	FREE_IMAGE_TYPE imgt;               /**/
 	FIMEMORY *stream;                   /**/
-	FIBITMAP* firsbitmap;               /**/
-	FIBITMAP* bitmap;                   /**/
-	void* pixel;                        /**/
+	FIBITMAP *firsbitmap;               /**/
+	FIBITMAP *bitmap;                   /**/
+	void *pixel;                        /**/
 
 	/*	*/
 	unsigned int width;
@@ -662,14 +664,14 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	1 byte for the size in order, Because it crash otherwise if set to 0.	*/
 	stream = FreeImage_OpenMemory(NULL, 1);
-	if(stream == NULL){
+	if (stream == NULL) {
 		fprintf(stderr, "Failed to open freeimage memory stream. \n");
 	}
 
 
 	/*	Read from file stream.	*/
-	while( (len = read(fd, inbuf, sizeof(inbuf)) ) > 0){
-		if(len < 0){
+	while ((len = read(fd, inbuf, sizeof(inbuf))) > 0) {
+		if (len < 0) {
 			fprintf(stderr, "Error reading image, %s.\n", strerror(errno));
 			FreeImage_CloseMemory(stream);
 			return 0;
@@ -689,7 +691,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	imgtype = FreeImage_GetFileTypeFromMemory(stream, totallen);
 	FreeImage_SeekMemory(stream, 0, SEEK_SET);
 	firsbitmap = FreeImage_LoadFromMemory(imgtype, stream, 0);
-	if( firsbitmap == NULL){
+	if (firsbitmap == NULL) {
 		fprintf(stderr, "Failed to create free-image from memory.\n");
 		FreeImage_CloseMemory(stream);
 		return -1;
@@ -706,36 +708,36 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	Get texture color type.	*/
 	swpVerbosePrintf("Image color type %d\n", colortype);
-	switch(colortype){
-	case FIC_RGB:
-		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
-		desc->intfor = GL_RGB;
-		desc->format = GL_BGRA;
-		break;
-	case FIC_RGBALPHA:
-		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
-		desc->intfor = GL_RGBA;
-		desc->format = GL_BGRA;
-		break;
-	case FIC_PALETTE:
-		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
-		desc->intfor = GL_RGBA;
-		desc->format = GL_BGRA;
-		break;
-	case FIC_CMYK:
-		bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
-		desc->intfor = GL_RGBA;
-		desc->format = GL_BGRA;
-		break;
-	default:
-		fprintf(stderr, "None supported freeimage color type, %d.\n", colortype);
-		FreeImage_CloseMemory(stream);
-		FreeImage_Unload(firsbitmap);
-		return -1;
+	switch (colortype) {
+		case FIC_RGB:
+			bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
+			desc->intfor = GL_RGB;
+			desc->format = GL_BGRA;
+			break;
+		case FIC_RGBALPHA:
+			bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
+			desc->intfor = GL_RGBA;
+			desc->format = GL_BGRA;
+			break;
+		case FIC_PALETTE:
+			bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
+			desc->intfor = GL_RGBA;
+			desc->format = GL_BGRA;
+			break;
+		case FIC_CMYK:
+			bitmap = FreeImage_ConvertTo32Bits(firsbitmap);
+			desc->intfor = GL_RGBA;
+			desc->format = GL_BGRA;
+			break;
+		default:
+			fprintf(stderr, "None supported freeimage color type, %d.\n", colortype);
+			FreeImage_CloseMemory(stream);
+			FreeImage_Unload(firsbitmap);
+			return -1;
 	}
 
 	/*	Check if the conversion was successfully.	*/
-	if(bitmap == NULL){
+	if (bitmap == NULL) {
 		fprintf(stderr, "Failed to convert bitmap.\n");
 		FreeImage_CloseMemory(stream);
 		FreeImage_Unload(firsbitmap);
@@ -746,12 +748,12 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	pixel = FreeImage_GetBits(bitmap);
 	width = FreeImage_GetWidth(bitmap);
 	height = FreeImage_GetHeight(bitmap);
-	bpp = ( FreeImage_GetBPP(bitmap) / 8 );
+	bpp = (FreeImage_GetBPP(bitmap) / 8);
 	size = width * height * bpp;
-	swpVerbosePrintf("%d kb, %d %dx%d\n", ( size / 1024 ), imgtype, width, height);
+	swpVerbosePrintf("%d kb, %d %dx%d\n", (size / 1024), imgtype, width, height);
 
 	/*	Check size is supported by opengl driver.	*/
-	if(width > g_maxtexsize || height > g_maxtexsize){
+	if (width > g_maxtexsize || height > g_maxtexsize) {
 		fprintf(stderr, "Texture to big(limit %d), %dx%d.\n", g_maxtexsize, width, height);
 		FreeImage_Unload(firsbitmap);
 		FreeImage_Unload(bitmap);
@@ -760,7 +762,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	}
 
 	/*	Check error and release resources.	*/
-	if(pixel == NULL || size == 0 ){
+	if (pixel == NULL || size == 0) {
 		fprintf(stderr, "Failed getting pixel data from FreeImage.\n");
 		FreeImage_Unload(firsbitmap);
 		FreeImage_Unload(bitmap);
@@ -770,7 +772,7 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 
 	/*	Make a copy of pixel data.	*/
 	desc->pixel = malloc(size);
-	if(desc->pixel == NULL){
+	if (desc->pixel == NULL) {
 		fprintf(stderr, "Failed to allocate %d, %s.\n", size, strerror(errno));
 	}
 	memcpy(desc->pixel, pixel, size);
@@ -790,17 +792,17 @@ ssize_t swpReadPicFromfd(int fd, swpTextureDesc* desc){
 	return totallen;
 }
 
-int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
+int swpLoadTextureFromMem(GLuint *tex, GLuint pbo, const swpTextureDesc *desc) {
 
 	GLuint intfor = desc->intfor;           /*	*/
 	GLuint format = desc->format;           /*	*/
 	GLuint imgdatatype = desc->imgdatatype; /*	*/
 	GLboolean status;                       /*	*/
 	GLenum err = 0;                         /*	*/
-	GLubyte* pbuf = NULL;                   /*	*/
+	GLubyte *pbuf = NULL;                   /*	*/
 
 	/*	*/
-	const void* pixel = desc->pixel;
+	const void *pixel = desc->pixel;
 	const unsigned int width = desc->width;
 	const unsigned int height = desc->height;
 	const unsigned int size = desc->size;
@@ -808,41 +810,41 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	swpVerbosePrintf("Loading texture from pixel data.\n");
 
 	/*	Get compression.	*/
-	if(g_compression){
-		switch(intfor){
-		case GL_RGB:
-			intfor = GL_COMPRESSED_RGB;
-			break;
-		case GL_RGBA:
-			intfor = GL_COMPRESSED_RGBA;
-			break;
-		default:
-			break;
+	if (g_compression) {
+		switch (intfor) {
+			case GL_RGB:
+				intfor = GL_COMPRESSED_RGB;
+				break;
+			case GL_RGBA:
+				intfor = GL_COMPRESSED_RGBA;
+				break;
+			default:
+				break;
 		}
 	}
 
 
-	if(g_support_pbo){
+	if (g_support_pbo) {
 
 		/*  Pop any existing error. */
 		glGetError();
 
 		/*  */
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
-	#if defined(GLES2) || defined(GLES3)
+#if defined(GLES2) || defined(GLES3)
 		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_DRAW_ARB);
-	#else
+#else
 
 		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, size, NULL, GL_STREAM_DRAW_ARB);
 		err = glGetError();
-		if( err != GL_NO_ERROR){
+		if (err != GL_NO_ERROR) {
 			fprintf(stderr, "Error on glBufferData %d.\n", err);
 			return 0;
 		}
-		pbuf = (GLubyte*)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,
-				GL_WRITE_ONLY_ARB);
+		pbuf = (GLubyte *) glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,
+		                                  GL_WRITE_ONLY_ARB);
 
-		if(pbuf == NULL){
+		if (pbuf == NULL) {
 			err = glGetError();
 			fprintf(stderr, "Bad pointer %i\n", err);
 			return 0;
@@ -850,14 +852,14 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		swpVerbosePrintf("Copying %d bytes to PBO (%d MB).\n", size, size / (1024 * 1024));
 		memcpy(pbuf, pixel, size);
 		status = glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
-		if( status != GL_TRUE){
+		if (status != GL_TRUE) {
 			fprintf(stderr, "Error when unmapping pbo buffer, %d\n", glGetError());
 		}
 #endif
 	}
 
 	/*	Create texture.	*/
-	if(glIsTexture(*tex) == GL_FALSE){
+	if (glIsTexture(*tex) == GL_FALSE) {
 		glGenTextures(1, tex);
 		glBindTexture(GL_TEXTURE_2D, *tex);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -867,7 +869,7 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
 
@@ -875,17 +877,17 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 	glBindTexture(GL_TEXTURE_2D, *tex);
 
 	/*	Transfer pixel data.	*/
-	if(g_support_pbo)
-		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)NULL);
+	if (g_support_pbo)
+		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void *) NULL);
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void*)pixel);
+		glTexImage2D(GL_TEXTURE_2D, 0, intfor, width, height, 0, format, imgdatatype, (const void *) pixel);
 
 	/*	*/
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	/*	*/
 	glBindTexture(GL_TEXTURE_2D, 0);
-	if(g_support_pbo)
+	if (g_support_pbo)
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
 
 	/*	Release pixel data.	*/
@@ -895,9 +897,9 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 }
 
 
-void swpSetWallpaper(SDL_Window* window){
+void swpSetWallpaper(SDL_Window *window) {
 
-	void* dekstopwin = NULL;
+	void *dekstopwin = NULL;
 
 	SDL_SysWMinfo wm;
 	SDL_VERSION(&wm.version); /* initialize info structure with SDL version info */
@@ -907,64 +909,63 @@ void swpSetWallpaper(SDL_Window* window){
 	dekstopwin;
 
 
-
-	if( SDL_GetWindowWMInfo(window, &wm) ){
+	if (SDL_GetWindowWMInfo(window, &wm)) {
 		SDL_DisplayMode mode;
-		if(wm.subsystem == SDL_SYSWM_X11){
+		if (wm.subsystem == SDL_SYSWM_X11) {
 			SDL_GetDesktopDisplayMode(0, &mode);
 
 
 		}
 
-	}else{
+	} else {
 
 	}
 }
 
-void swpSetFullscreen(SDL_Window* window, Uint32 fullscreen){
+void swpSetFullscreen(SDL_Window *window, Uint32 fullscreen) {
 
 	/*SDL_SetWindowDisplayMode(window, mode);	*/
 	SDL_SetWindowFullscreen(window, fullscreen);
 }
 
 
-void* swpCatchPipedTexture(void* phandle){
+void *swpCatchPipedTexture(void *phandle) {
 
 	/*	*/
 	fd_set read_fd_set;
-	int fd = *(int*)phandle;
+	int fd = *(int *) phandle;
 	int numdesc = 10;
 	int curdesc = 0;
-	swpTextureDesc desc[10] = { {0} };
+	swpTextureDesc desc[10] = {{0}};
 	SDL_Event event = {0};
 	ssize_t status;
 	int len;
 
-	swpVerbosePrintf("Started %s thread.\n", SDL_GetThreadName(NULL) );
+	swpVerbosePrintf("Started %s thread.\n", SDL_GetThreadName(NULL));
 
 	/*	*/
 	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 
 	/*	Open FIFO file.	*/
 	fd = open(g_fifopath, O_RDONLY);
-	if(fd < 0){
+	if (fd < 0) {
 		fprintf(stderr, "Failed to open fifo, %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	/*	Initialize the set of active sockets. */
-	FD_ZERO (&read_fd_set);
-	FD_SET (fd, &read_fd_set);
+	FD_ZERO(&read_fd_set);
+	FD_SET(fd, &read_fd_set);
 
 	/*	*/
-	for(;;){
+	for (;;) {
 
-		if ( (len = select (fd + 1, &read_fd_set, NULL, NULL, NULL) ) < 0){
-			perror ("select");
-			exit (EXIT_FAILURE);
-		}else{
+		if ((len = select(fd + 1, &read_fd_set, NULL, NULL, NULL)) < 0) {
+			perror("select");
+			exit(EXIT_FAILURE);
+		} else {
 
-			if(FD_ISSET(fd, &read_fd_set) ){
+			if (FD_ISSET(fd, &read_fd_set)) {
 				swpVerbosePrintf("Select event %d.\n", fd);
 
 				if (flock(fd, LOCK_EX) != 0) {
@@ -980,25 +981,25 @@ void* swpCatchPipedTexture(void* phandle){
 				}
 
 				/*	Close file.	*/
-				if( close(fd) != 0){
+				if (close(fd) != 0) {
 					fprintf(stderr, "Failed to close file, %s.\n", strerror(errno));
 				}
 
 
 				/*	Send event to the main thread that will process the data.	*/
-				if(status > 0){
+				if (status > 0) {
 					event.user.code = SWP_EVENT_UPDATE_IMAGE;
 					event.type = SDL_USEREVENT;
 					event.user.data1 = &desc[curdesc];
 					SDL_PushEvent(&event);
 				}
-				curdesc = ( curdesc + 1 ) % numdesc;
+				curdesc = (curdesc + 1) % numdesc;
 
 				/*	Reopen the file.	*/
 				fd = open(g_fifopath, O_RDONLY);
 
-				FD_ZERO (&read_fd_set);
-				FD_SET (fd, &read_fd_set);
+				FD_ZERO(&read_fd_set);
+				FD_SET(fd, &read_fd_set);
 			}
 		}
 
@@ -1007,39 +1008,39 @@ void* swpCatchPipedTexture(void* phandle){
 	return NULL;
 }
 
-void swpCatchSignal(int sig){
+void swpCatchSignal(int sig) {
 
 	SDL_Event event = {0};
 
-	switch(sig){
-	case SIGSEGV:
-	case SIGILL:
-		unlink(g_fifopath);
-		exit(EXIT_FAILURE);
-		break;
-	case SIGPIPE:
-		fprintf(stderr, "Sigpipe.\n");
-		break;
-	case SIGTERM:
-	case SIGINT:
-		/*	Send event to main thread SDL event handler to quit.	*/
-		event.type = SDL_QUIT;
-		SDL_PushEvent(&event);
-		g_alive = SDL_FALSE;
-		break;
-	default:
-		break;
+	switch (sig) {
+		case SIGSEGV:
+		case SIGILL:
+			unlink(g_fifopath);
+			exit(EXIT_FAILURE);
+			break;
+		case SIGPIPE:
+			fprintf(stderr, "Sigpipe.\n");
+			break;
+		case SIGTERM:
+		case SIGINT:
+			/*	Send event to main thread SDL event handler to quit.	*/
+			event.type = SDL_QUIT;
+			SDL_PushEvent(&event);
+			g_alive = SDL_FALSE;
+			break;
+		default:
+			break;
 	}
 }
 
-void swpRender(GLuint vao, SDL_Window* __restrict__ window,
-        swpRenderingState* __restrict__ state) {
+void swpRender(GLuint vao, SDL_Window *__restrict__ window,
+               swpRenderingState *__restrict__ state) {
 
 	/*	*/
-	if(state->inTransition != 0){
+	if (state->inTransition != 0) {
 
 		/*	*/
-		const swpTransitionShader* trashader;
+		const swpTransitionShader *trashader;
 		int glprindex = state->data.numshaders - 1;
 		float normalelapse;
 
@@ -1059,7 +1060,7 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 		glUniform1fvARB(trashader->normalizedurloc, 1, &normalelapse);
 
 		/*	Check if transition has ended.	*/
-		if(state->elapseTransition > state->data.shaders[glprindex].elapse){
+		if (state->elapseTransition > state->data.shaders[glprindex].elapse) {
 			/*	Disable transition.	*/
 			state->inTransition = 0;
 			glUseProgram(state->data.shaders[0].prog);
@@ -1074,7 +1075,7 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 
 	/*	Draw quad.	*/
 	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4 );
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 	SDL_GL_SwapWindow(window);
 
