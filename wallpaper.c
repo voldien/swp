@@ -43,10 +43,13 @@ PFNGLCOMPILESHADERARBPROC glCompileShaderARB = NULL;
 
 PFNGLUNIFORM1IARBPROC glUniform1iARB = NULL;
 PFNGLUNIFORM1FARBPROC glUniform1fARB = NULL;
+PFNGLPROGRAMUNIFORM1IPROC glProgramUniform1i = NULL;
+PFNGLPROGRAMUNIFORM1FPROC glProgramUniform1f = NULL;
 
 /*	Default vertex shader.	*/
 const char* gc_vertex = ""
-"#if __VERSION__ > 130\n"
+"#extension GL_ARB_explicit_attrib_location : enable\n"
+"#if defined(GL_ARB_explicit_attrib_location)\n"
 "layout(location = 0) in vec3 vertex;\n"
 "#else\n"
 "attribute vec3 vertex;\n"
@@ -63,9 +66,10 @@ const char* gc_vertex = ""
 
 /*	Default fragment shader.	*/
 const char* gc_fragment = ""
-"#if __VERSION__ > 130\n"
+"#extension GL_ARB_explicit_attrib_location : enable\n"
+"#if defined(GL_ARB_explicit_attrib_location)\n"
 "layout(location = 0) out vec4 fragColor;\n"
-"#elif __VERSION__ == 130\n"
+"#else\n"
 "out vec4 fragColor;\n"
 "#endif\n"
 "uniform sampler2D tex0;\n"
@@ -75,17 +79,26 @@ const char* gc_fragment = ""
 "varying vec2 uv;\n"
 "#endif\n"
 "void main(void){\n"
-"	#if __VERSION__ > 120\n"
+"#if defined(GL_ARB_explicit_attrib_location)\n"
+"   #if __VERSION__ > 120\n"
 "	fragColor = texture(tex0, uv);\n"
-"	#else\n"
-"	gl_FragColor = texture2D(tex0, uv);\n"
-"	#endif\n"
+"   #else\n"
+"   fragColor = texture2D(tex0, uv);\n"
+"   #endif\n"
+"#else\n"
+"   #if __VERSION__ > 120\n"
+"	fragColor = texture(tex0, uv);\n"
+"   #else\n"
+"   gl_FragColor = texture2D(tex0, uv);\n"
+"   #endif\n"
+"#endif\n"
 "}\n";
 
 const char* gc_fade_transition_fragment = ""
-"#if __VERSION__ > 130\n"
+"#extension GL_ARB_explicit_attrib_location : enable\n"
+"#if defined(GL_ARB_explicit_attrib_location)\n"
 "layout(location = 0) out vec4 fragColor;\n"
-"#elif __VERSION__ == 130\n"
+"#else\n"
 "out vec4 fragColor;\n"
 "#endif\n"
 "uniform sampler2D tex0;\n"
@@ -97,11 +110,19 @@ const char* gc_fade_transition_fragment = ""
 "varying vec2 uv;\n"
 "#endif\n"
 "void main(void){\n"
-"	#if __VERSION__ > 120\n"
+"#if defined(GL_ARB_explicit_attrib_location)\n"
+"   #if __VERSION__ > 120\n"
 "	fragColor = mix(texture(tex1, uv), texture(tex0, uv), normalizedur);\n"
+"	#else\n"
+"	fragColor = mix(texture2D(tex1, uv), texture2D(tex0, uv), normalizedur);\n"
+"	#endif\n"
+"#else\n"
+"   #if __VERSION__ > 120\n"
+"	gl_FragColor = mix(texture(tex1, uv), texture(tex0, uv), normalizedur);\n"
 "	#else\n"
 "	gl_FragColor = mix(texture2D(tex1, uv), texture2D(tex0, uv), normalizedur);\n"
 "	#endif\n"
+"#endif\n"
 "}\n";
 
 /*	Display quad.	*/
@@ -127,6 +148,7 @@ int g_winres[2] = {-1,-1};				/*	Window resolution.	*/
 int g_winpos[2] = {-1,-1};				/*	Window position.	*/
 int g_maxtexsize;
 int g_support_pbo = 0;
+unsigned int g_core_profile = 1;
 
 
 int swpVerbosePrintf(const char* format,...){
@@ -253,14 +275,14 @@ void callback_debug_gl(GLenum source, GLenum type, GLuint id, GLenum severity,
     printf("\n");
 }
 
-void swpLoadGLFunc(void){
+void swpLoadGLFunc(void) {
 
-    /*	Load function pointer by their symbol name.	*/
-	glDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
-	glDebugMessageCallbackAMD  = (PFNGLDEBUGMESSAGECALLBACKAMDPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
+	/*	Load function pointer by their symbol name.	*/
+	glDebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC) SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
+	glDebugMessageCallbackAMD = (PFNGLDEBUGMESSAGECALLBACKAMDPROC) SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
 
 	/*	Get function address.	*/
-	glBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBufferARB");
+	glBindBufferARB = (PFNGLBINDBUFFERARBPROC) SDL_GL_GetProcAddress("glBindBufferARB");
 	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
 	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
 	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
@@ -276,6 +298,9 @@ void swpLoadGLFunc(void){
 	/*	*/
 	glUniform1iARB = SDL_GL_GetProcAddress("glUniform1iARB");
 	glUniform1fARB = SDL_GL_GetProcAddress("glUniform1fARB");
+
+	glProgramUniform1i = SDL_GL_GetProcAddress("glProgramUniform1i");
+	glProgramUniform1f = SDL_GL_GetProcAddress("glProgramUniform1f");
 
 }
 
@@ -445,9 +470,8 @@ GLuint swpCreateShader(const char* vshader, const char* fshader){
 	swpVerbosePrintf("Loading shader program.\n");
 
 	/*	Check if core.	*/
-	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &value);
-	strcore = ( (value & SDL_GL_CONTEXT_PROFILE_CORE) != 0 ) ? "core" : "";
-
+	strcore = g_core_profile ? "core" : "";
+	strcore = "";
 	/*	Create version string.	*/
 	memset(glversion, 0, sizeof(glversion));
 	sprintf(glversion, "#version %d %s\n", swpGetGLSLVersion(), strcore);	/*	TODO evalute.*/
@@ -797,8 +821,13 @@ int swpLoadTextureFromMem(GLuint* tex, GLuint pbo, const swpTextureDesc* desc){
 		}
 	}
 
+
 	if(g_support_pbo){
 
+		/*  Pop any existing error. */
+		glGetError();
+
+		/*  */
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
 	#if defined(GLES2) || defined(GLES3)
 		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, pixel, GL_STREAM_DRAW_ARB);
@@ -958,7 +987,7 @@ void* swpCatchPipedTexture(void* phandle){
 
 				/*	Send event to the main thread that will process the data.	*/
 				if(status > 0){
-					event.user.code = 0;
+					event.user.code = SWP_EVENT_UPDATE_IMAGE;
 					event.type = SDL_USEREVENT;
 					event.user.data1 = &desc[curdesc];
 					SDL_PushEvent(&event);
@@ -1039,7 +1068,7 @@ void swpRender(GLuint vao, SDL_Window* __restrict__ window,
 		/*	Update.	*/
 		SDL_Event event = {0};
 		event.type = SDL_USEREVENT;
-		event.user.code = 1;
+		event.user.code = SWP_EVENT_UPDATE_TRANSITION;
 		SDL_PushEvent(&event);
 	}
 

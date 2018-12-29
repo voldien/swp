@@ -45,8 +45,15 @@ extern int g_winres[2];                 /*	Window resolution.	*/
 extern int g_winpos[2];                 /*	Window position.	*/
 extern int g_maxtexsize;                /*	OpenGL max texture size, (Check texture proxy later)*/
 extern int g_support_pbo;               /*	Pixel buffer object for fast image transfer.	*/
+extern unsigned int g_core_profile;     /*  */
 
 #define SWP_NUM_TEXTURES 3
+
+/**
+ * User event code.
+ */
+#define SWP_EVENT_UPDATE_IMAGE      0
+#define SWP_EVENT_UPDATE_TRANSITION 1
 
 /**
  *	Transition shader and associated

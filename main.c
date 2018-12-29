@@ -40,6 +40,25 @@
 
 #include "wallpaper.h"
 
+static const char *minRequiredExtensions[] = {
+		/*  Shaders.    */
+		"GL_ARB_fragment_shader",
+		"GL_ARB_vertex_shader",
+		"GL_ARB_shader_objects",
+		/*  Shader features.    */
+		"GL_ARB_explicit_attrib_location",
+
+		/*  Buffer objects. */
+		"GL_ARB_vertex_buffer_object",
+		"GL_ARB_pixel_buffer_object",
+
+		"GL_ARB_multitexture",
+		/*  Textures.   */
+
+		/*  */
+		"GL_ARB_vertex_array_object",
+};
+const unsigned int numMinReqExtensions = sizeof(minRequiredExtensions) / sizeof(minRequiredExtensions[0]);
 
 
 int main(int argc, char** argv){
@@ -233,15 +252,20 @@ int main(int argc, char** argv){
 		status = EXIT_FAILURE;
 		goto error;
 	}
-
+	
 	/*	*/
 	SDL_ShowWindow(window);
+
+	/*  */
 	if(g_wallpaper == 1){
 		swpSetWallpaper(window);
 	}
 	if(g_fullscreen == 1){
 		swpSetFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
+
+	/*	Create OpenGL Context.	*/
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	/*	Check if debug is enabled.	*/
 	if(g_debug){
@@ -250,10 +274,29 @@ int main(int argc, char** argv){
 		                | SDL_GL_CONTEXT_DEBUG_FLAG);
 	}
 
-	/*	Create OpenGL Context.	*/
+	/*  */
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, SDL_TRUE);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+	SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, SDL_FALSE);
+
+	/*  Disable multi sampling.  */
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, SDL_FALSE);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+
+	/*  Set minimum version.    */
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+
 	context = SDL_GL_CreateContext(window);
 	if(context == NULL){
 		fprintf(stderr, "Failed create OpenGL core context, %s.\n", SDL_GetError());
+		g_core_profile = 0;
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 		context = SDL_GL_CreateContext(window);
 		if( context == NULL){
@@ -268,6 +311,18 @@ int main(int argc, char** argv){
 		goto error;
 	}
 
+	/*  Check if all required extension is supported.   */
+	for (i = 0; i < numMinReqExtensions; i++) {
+		if (!swpCheckExtensionSupported(minRequiredExtensions[i])) {
+			fprintf(stderr, "%s is not supported\n", minRequiredExtensions[i]);
+			goto error;
+		}
+	}
+
+	/*  */
+	glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &g_core_profile);
+	g_core_profile = (g_core_profile & GL_CONTEXT_CORE_PROFILE_BIT) != 0;
+
 	/*	Create FIFO thread.	*/
 	thread = SDL_CreateThread((SDL_ThreadFunction) swpCatchPipedTexture,
 			"catch_pipe", &fdfifo);
@@ -278,19 +333,19 @@ int main(int argc, char** argv){
 	}
 
 	/*	Set OpenGL state.	*/
-	SDL_GL_SetSwapInterval(1);	/*	Enable vsync.	*/
-	glDepthMask(GL_FALSE);		/*	Depth mask isn't needed.	*/
-	glDepthFunc(GL_LESS);		/**/
+	SDL_GL_SetSwapInterval(SDL_TRUE);   /*	Enable vsync.	*/
+	glDepthMask(GL_FALSE);              /*	Depth mask isn't needed.	*/
+	glDepthFunc(GL_LESS);               /**/
 	glEnable(GL_DITHER);
 	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);	/*	Depth isn't needed.	*/
-	glDisable(GL_STENCIL_TEST);	/*	Stencil isn't needed.	*/
+	glDisable(GL_DEPTH_TEST);           /*	Depth isn't needed.	*/
+	glDisable(GL_STENCIL_TEST);         /*	Stencil isn't needed.	*/
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_SCISSOR_TEST);
 	glCullFace(GL_FRONT_AND_BACK);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-
+	
 	/*	Display OpenGL information.	*/
 	swpVerbosePrintf("GL_VENDOR %s.\n", glGetString(GL_VENDOR) );
 	swpVerbosePrintf("GL_VERSION %s.\n", glGetString(GL_VERSION) );
@@ -306,9 +361,9 @@ int main(int argc, char** argv){
 	swpLoadGLFunc();
 
 	/*	Enable opengl debug callback if in debug mode.	*/
-	if(g_debug){
+	if(g_debug)
 		swpEnableDebug();
-	}
+
 
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
@@ -325,6 +380,8 @@ int main(int argc, char** argv){
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];
 	state.data.displayshader->prog = swpCreateShader(gc_vertex, gc_fragment);
+	if(state.data.displayshader->prog < 0)
+		goto error;
 	state.data.displayshader->elapse = 0;
 	state.data.displayshader->texloc0 = glGetUniformLocationARB(state.data.displayshader->prog, "tex0");
 	glUseProgram(state.data.displayshader->prog);
@@ -429,7 +486,7 @@ int main(int argc, char** argv){
 			case SDL_USEREVENT:
 
 				/*	Event for when the picture has been loaded from file to memory.	*/
-				if(event.user.code == 0){
+				if(event.user.code == SWP_EVENT_UPDATE_IMAGE){
 
 					/*	*/
 					swpLoadTextureFromMem(&state.data.texs[state.data.curtex],
@@ -458,7 +515,7 @@ int main(int argc, char** argv){
 						/*	Init timer for transition shader.	*/
 						before = SDL_GetPerformanceCounter();
 
-					}else{
+					}else if(event.user.code == SWP_EVENT_UPDATE_TRANSITION){
 
 						/*	*/
 						glActiveTexture(GL_TEXTURE0);
