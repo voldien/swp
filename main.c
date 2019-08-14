@@ -290,8 +290,8 @@ int main(int argc, char** argv){
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 
 	/*  Set minimum version.    */
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	context = SDL_GL_CreateContext(window);
 	if (context == NULL) {
@@ -364,7 +364,6 @@ int main(int argc, char** argv){
 	if (g_debug)
 		swpEnableDebug();
 
-
 	/*	Create display quad.	*/
 	swpGenerateQuad(&vao, &vbo);
 
@@ -385,7 +384,7 @@ int main(int argc, char** argv){
 	state.data.displayshader->elapse = 0;
 	state.data.displayshader->texloc0 = glGetUniformLocationARB(state.data.displayshader->prog, "tex0");
 	glUseProgram(state.data.displayshader->prog);
-	glUniform1i(state.data.displayshader->texloc0, 0);
+	glUniform1iARB(state.data.displayshader->texloc0, 0);
 
 	/*	Load transition from file.	 */
 	if (numtranspaths > 0)
@@ -404,8 +403,10 @@ int main(int argc, char** argv){
 	if (fd > 0) {
 		swpTextureDesc desc = {0};
 		swpReadPicFromfd(fd, &desc);
-		swpLoadTextureFromMem(&state.data.texs[state.data.curtex],
-		                      state.data.pbo[state.data.curtex], &desc);
+		event.user.code = 0;
+		event.type = SDL_USEREVENT;
+		event.user.data1 = (void *) &desc;
+		SDL_PushEvent(&event);
 		close(fd);
 	}
 
