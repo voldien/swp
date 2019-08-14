@@ -19,15 +19,22 @@
 
 /*	*/
 #ifdef GLES2
-	#undef GLES2
+#undef GLES2
 	#include<GLES2/gl2.h>
 	#include<GLES2/gl2ext.h>
 #else
-	#include <GL/gl.h>
-	#include <GL/glext.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 #endif
 
 /*	OpenGL ARB function pointers.	*/
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = NULL;
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray = NULL;
+PFNGLISVERTEXARRAYPROC glIsVertexArray = NULL;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = NULL;
+PFNGLGENBUFFERSARBPROC glGenBuffersARB = NULL;
+PFNGLISBUFFERARBPROC glIsBufferARB = NULL;
+PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB = NULL;
 PFNGLMAPBUFFERPROC glMapBufferARB = NULL;
 PFNGLUNMAPBUFFERPROC glUnmapBufferARB = NULL;
 PFNGLBINDBUFFERARBPROC glBindBufferARB = NULL;
@@ -39,9 +46,23 @@ PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB = NULL;
 PFNGLVERTEXATTRIBPOINTERARBPROC glVertexAttribPointerARB = NULL;
 PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB = NULL;
 
+PFNGLCREATEPROGRAMPROC glCreateProgram = NULL;
+PFNGLCREATESHADERPROC glCreateShader = NULL;
 PFNGLSHADERSOURCEARBPROC glShaderSourceARB = NULL;
 PFNGLCOMPILESHADERARBPROC glCompileShaderARB = NULL;
+PFNGLATTACHSHADERPROC glAttachShader = NULL;
+PFNGLLINKPROGRAMPROC glLinkProgram = NULL;
+PFNGLVALIDATEPROGRAMPROC glValidateProgram = NULL;
+PFNGLGETPROGRAMIVPROC glGetProgramiv = NULL;
+PFNGLDETACHSHADERPROC glDetachShader = NULL;
+PFNGLDELETESHADERPROC glDeleteShader = NULL;
+PFNGLBINDFRAGDATALOCATIONPROC glBindFragDataLocation = NULL;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL;
 
+
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap = NULL;
+PFNGLUSEPROGRAMPROC glUseProgram = NULL;
+PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB = NULL;
 PFNGLUNIFORM1IARBPROC glUniform1iARB = NULL;
 PFNGLUNIFORM1FARBPROC glUniform1fARB = NULL;
 PFNGLUNIFORM1FVARBPROC glUniform1fvARB = NULL;
@@ -284,6 +305,14 @@ void swpLoadGLFunc(void) {
 	glDebugMessageCallbackAMD = (PFNGLDEBUGMESSAGECALLBACKAMDPROC) SDL_GL_GetProcAddress("glDebugMessageCallbackAMD");
 
 	/*	Get function address.	*/
+	glGenVertexArrays = SDL_GL_GetProcAddress("glGenVertexArrays");
+	glBindVertexArray = SDL_GL_GetProcAddress("glBindVertexArray");
+	glIsVertexArray = SDL_GL_GetProcAddress("glIsVertexArray");
+	glDeleteVertexArrays = SDL_GL_GetProcAddress("glDeleteVertexArrays");
+
+	glGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
+	glIsBufferARB = SDL_GL_GetProcAddress("glIsBufferARB");
+	glDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
 	glBindBufferARB = (PFNGLBINDBUFFERARBPROC) SDL_GL_GetProcAddress("glBindBufferARB");
 	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
 	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
@@ -296,10 +325,23 @@ void swpLoadGLFunc(void) {
 	glBindAttribLocationARB = SDL_GL_GetProcAddress("glBindAttribLocationARB");
 
 	/*	*/
+	glCreateProgram = SDL_GL_GetProcAddress("glCreateProgram");
+	glCreateShader = SDL_GL_GetProcAddress("glCreateShader");
 	glShaderSourceARB = SDL_GL_GetProcAddress("glShaderSourceARB");
 	glCompileShaderARB = SDL_GL_GetProcAddress("glCompileShaderARB");
+	glAttachShader = SDL_GL_GetProcAddress("glAttachShader");
+	glLinkProgram = SDL_GL_GetProcAddress("glLinkProgram");
+	glValidateProgram = SDL_GL_GetProcAddress("glValidateProgram");
+	glGetProgramiv = SDL_GL_GetProcAddress("glGetProgramiv");
+	glDetachShader = SDL_GL_GetProcAddress("glDetachShader");
+	glDeleteShader = SDL_GL_GetProcAddress("glDeleteShader");
+	glBindFragDataLocation = SDL_GL_GetProcAddress("glBindFragDataLocation");
+	glGetProgramInfoLog = SDL_GL_GetProcAddress("glGetProgramInfoLog");
 
 	/*	*/
+	glGenerateMipmap = SDL_GL_GetProcAddress("glGenerateMipmap");
+	glUseProgram = SDL_GL_GetProcAddress("glUseProgram");
+	glGetUniformLocationARB = SDL_GL_GetProcAddress("glGetUniformLocationARB");
 	glUniform1iARB = SDL_GL_GetProcAddress("glUniform1iARB");
 	glUniform1fARB = SDL_GL_GetProcAddress("glUniform1fARB");
 	glUniform1fvARB = SDL_GL_GetProcAddress("glUniform1fvARB");
