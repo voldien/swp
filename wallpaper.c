@@ -1122,12 +1122,14 @@ void swpRender(GLuint vao, SDL_Window *__restrict__ window,
 		event.type = SDL_USEREVENT;
 		event.user.code = SWP_EVENT_UPDATE_TRANSITION;
 		SDL_PushEvent(&event);
-	}
+	} else
+		swpVerbosePrintf("Render Non-Transition View.\n");
 
 	/*	Draw quad.	*/
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+
 	SDL_GL_SwapWindow(window);
 
 }

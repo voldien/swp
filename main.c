@@ -436,10 +436,9 @@ int main(int argc, char** argv){
 			case SDL_QUIT:
 				swpVerbosePrintf("Requested to quit.");
 				goto error;
-				break;
 			case SDL_KEYUP:
 				if(event.key.keysym.sym == SDLK_RETURN && ( event.key.keysym.mod & SDLK_LCTRL ) ){
-					swpVerbosePrintf("Set to fullscreen mode.");
+					swpVerbosePrintf("Set to fullscreen mode.\n");
 					g_fullscreen = ~g_fullscreen & 0x1;
 					swpSetFullscreen(window, g_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 				}
@@ -450,18 +449,15 @@ int main(int argc, char** argv){
 					swpVerbosePrintf("Requested to close Window.");
 					g_alive = SDL_FALSE;
 					goto error;
-					break;
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
 				case SDL_WINDOWEVENT_RESIZED:
-					visible = 1;
 					glViewport(0, 0, event.window.data1, event.window.data2);
-					swpVerbosePrintf("%dx%d\n", event.window.data1, event.window.data2);
+					glScissor(0,0, event.window.data1, event.window.data2);
+					swpVerbosePrintf("viewport: %dx%d\n", event.window.data1, event.window.data2);
 
 					/*	call draw.	*/
-					if(visible){
+					if(visible)
 						swpRender(vao, window, &state);
-					}
-
 					break;
 				case SDL_WINDOWEVENT_HIDDEN:
 					visible = 0;
@@ -469,9 +465,9 @@ int main(int argc, char** argv){
 				case SDL_WINDOWEVENT_EXPOSED:
 				case SDL_WINDOWEVENT_SHOWN:
 					visible = 1;
-					if(visible){
+					// Redraw.
+					if(visible)
 						swpRender(vao, window, &state);
-					}
 					break;
 				}
 				break;
@@ -479,7 +475,6 @@ int main(int argc, char** argv){
 
 				break;
 			case SDL_FINGERMOTION:
-				event.tfinger.x;
 				break;
 			case SDL_SYSWMEVENT:
 
