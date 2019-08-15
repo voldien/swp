@@ -66,7 +66,6 @@ int main(int argc, char** argv){
 	int status = EXIT_SUCCESS;      /*	*/
 	int result;                     /*	*/
 	int i;                          /*	*/
-	int x;                          /*	*/
 	int fd = 0;                     /*	*/
 	int pipe = 0;                   /*	*/
 	int fdfifo = 0;                 /*	*/

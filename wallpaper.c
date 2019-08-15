@@ -516,14 +516,12 @@ GLuint swpCreateShader(const char *vshader, const char *fshader) {
 	const char *fsources[2];
 	char glversion[32];
 
-	int value;
 	const char *strcore;
 
 	/*	*/
 	swpVerbosePrintf("Loading shader program.\n");
 
 	/*	Check if core.	*/
-	strcore = g_core_profile ? "core" : "";
 	strcore = "";
 	/*	Create version string.	*/
 	memset(glversion, 0, sizeof(glversion));
