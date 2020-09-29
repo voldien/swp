@@ -245,7 +245,7 @@ extern unsigned int swpCheckExtensionSupported(const char* extension);
  *
  *	@Return non-negative if successfully.
  */
-extern GLuint swpCreateShader(const char* vshader, const char* fshader);
+extern GLint swpCreateShader(const char* vshader, const char* fshader);
 
 /**
  *	Load transition shaders from file paths.

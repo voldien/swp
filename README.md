@@ -1,5 +1,6 @@
 # simplewallpaper
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/voldien/swp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/voldien/swp/context:cpp)
 
 simplewallpaper is a simple wallpaper application that uses FIFO (file in file out) for updating the current image. It is designed to be lightweight. Where it will only update the screen when changing the image or when the screen is being resized.
 

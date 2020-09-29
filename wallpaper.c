@@ -512,7 +512,7 @@ unsigned int swpCheckExtensionSupported(const char *extension) {
 }
 
 
-GLuint swpCreateShader(const char *vshader, const char *fshader) {
+GLint swpCreateShader(const char *vshader, const char *fshader) {
 
 	GLuint vs, fs;
 	GLuint prog;
@@ -620,11 +620,12 @@ int swpCreateTransitionShaders(swpTransitionShader *__restrict__ trans,
                                const char *__restrict__ source) {
 
 	/*	Create shader and check if successfully.	*/
-	trans->prog = swpCreateShader(gc_vertex, source);
+	GLint prog = swpCreateShader(gc_vertex, source);
 
 	/*	Check error.	*/
-	if (trans->prog < 0)
+	if (prog < 0)
 		return 0;
+	trans->prog = prog;
 
 	/*	Default elapse time for transition shader.	*/
 	trans->elapse = 1.120f;
@@ -960,8 +961,7 @@ void swpSetWallpaper(SDL_Window *window) {
 
 
 	/*	Get desktop window. Properly has to write a OS depended code.	*/
-	dekstopwin;
-
+	//dekstopwin;
 
 	if (SDL_GetWindowWMInfo(window, &wm)) {
 		SDL_DisplayMode mode;
@@ -971,9 +971,10 @@ void swpSetWallpaper(SDL_Window *window) {
 
 		}
 
-	} else {
+	} 
+	// else {
 
-	}
+	// }
 }
 
 void swpSetFullscreen(SDL_Window *window, Uint32 fullscreen) {
