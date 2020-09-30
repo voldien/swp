@@ -377,9 +377,10 @@ int main(int argc, char** argv){
 
 	/*	Create default shader.	*/
 	state.data.displayshader = &state.data.shaders[0];
-	state.data.displayshader->prog = swpCreateShader(gc_vertex, gc_fragment);
-	if (state.data.displayshader->prog < 0)
+	GLint display_prog = swpCreateShader(gc_vertex, gc_fragment);
+	if (display_prog < 0)
 		goto error;
+	state.data.displayshader->prog = display_prog;
 	state.data.displayshader->elapse = 0;
 	state.data.displayshader->texloc0 = glGetUniformLocationARB(state.data.displayshader->prog, "tex0");
 	glUseProgram(state.data.displayshader->prog);
